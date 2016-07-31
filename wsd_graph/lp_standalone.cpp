@@ -11,8 +11,8 @@ int main(int argc, char* argv[]){
   const struct option longopts[] =
   {
     {"outfile",     required_argument,  0, 'o'},
-    {"knn",     no_argument,  0, 'k'},
-    {"enn",     no_argument,  0, 'e'},
+    {"knn",     required_argument,  0, 'k'},
+    {"enn",     required_argument,  0, 'e'},
     {0,0,0,0}
   };
   int c = 0;
