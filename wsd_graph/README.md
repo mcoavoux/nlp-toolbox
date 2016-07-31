@@ -10,7 +10,9 @@ The input is a fixed size column format where columns are whitespace separated, 
 Usage
 ------
 The command line utility processes a file called `LP.in` produced by the python `preprocess.py` script and is run with:
+
 `propagate [OPTIONS] <output dir>`
+
 Where the output dir is the directory where to store the output of an experiment.
 The output and analysis of the process is produced by the python `postprocess.py` script. See the `runexp.sh` script for an example.
 
