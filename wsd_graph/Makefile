@@ -1,6 +1,6 @@
 CXX = g++
 CFLAGS = -std=c++11 -I ../shared
-LDFLAGS = -lafcpu #arrayfire lib -lafcuda for GPU 
+LDFLAGS = -lsqlite3 -lafcpu #arrayfire lib -lafcuda for GPU 
 OLVL = -O3 
 
 SRC = lp.cpp lp_standalone.cpp
