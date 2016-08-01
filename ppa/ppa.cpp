@@ -122,6 +122,7 @@ void Word2vec::get_dimensions(const char *filename,unsigned &N,unsigned &K){
 
 }
 
+/*
 QuadSampler::QuadSampler(const char *distrib_filename,const char *dataset_filename){
 
   read_cond_distributions(distrib_filename);
@@ -254,3 +255,4 @@ void QuadSampler::getXdictionary(vector<string> &dictionary){
     dictionary.push_back(*it);
   }
 }
+*/

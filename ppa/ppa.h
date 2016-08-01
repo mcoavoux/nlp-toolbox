@@ -5,6 +5,7 @@
 #include <string>
 #include <tuple>
 #include <unordered_map>
+#include <unordered_set>
 #include "arrayfire.h"
 #include "utils.h"
 
@@ -64,8 +65,7 @@ private:
   unsigned K;
 };
 
-
-
+/*
 class QuadSampler : public DataSampler{
 
 public:
@@ -87,7 +87,7 @@ private:
   vector<string> yvalues;
   vector<vector<string>> xvalues;
 };
-
+*/
 
 
 

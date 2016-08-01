@@ -63,7 +63,7 @@ template<class OUTSYM,class INSYM>
 class DataSampler{
  public:
   void sample_data_set(vector<OUTSYM> &yvalues,vector<vector<INSYM>> &xvalues);
-}
+};
 
 #include "nnutils.hpp"
 #endif

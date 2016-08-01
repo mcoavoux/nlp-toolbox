@@ -8,9 +8,9 @@
 
 int main(){
   
-  QuadSampler sampler("PPAttachData/attach_distrib.txt","PPAttachData/training");
+  //QuadSampler sampler("PPAttachData/attach_distrib.txt","PPAttachData/training");
   vector<string> xdict;
-  sampler.getXdictionary(xdict);
+  //sampler.getXdictionary(xdict);
   /*
 vector<string> yvalues;
   vector<vector<string>> xvalues;
@@ -48,6 +48,7 @@ vector<string> yvalues;
   */
 
   //build network
+  /*
   SymbolicFeedForwardNetwork<string,string> net;
   net.set_output_layer("loss",new SoftMaxLoss<string>(ydict));
   net.add_layer("top",new LinearLayer());  
@@ -88,4 +89,5 @@ vector<string> yvalues;
   test_set.getXdata(xdata[0]);
   float test_acc = net.eval_avg(ydata,xdata);        //eval on test data
   cout << "eval = " << test_acc << endl;
+  */
 }

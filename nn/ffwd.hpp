@@ -163,7 +163,6 @@ void SymbolicFeedForwardNetwork<OUTSYM,INSYM>::set_batch_data(vector<vector<INSY
 
 template <class OUTSYM,class INSYM>
 float SymbolicFeedForwardNetwork<OUTSYM,INSYM>::train_one(float alpha,bool adagrad,bool average){
-
    if(!is_compiled){
     compileNetwork();
     check_network_geometry();
@@ -256,7 +255,6 @@ float SymbolicFeedForwardNetwork<OUTSYM,INSYM>::eval(vector<OUTSYM> const &ydata
     S += yhat[i] == ydata[i];
   }
   return S/yhat.size();
-
 }
 
 template <class OUTSYM,class INSYM>

@@ -1,10 +1,10 @@
 #ifndef UNITS_H
 #define UNITS_H
 
+#include "arrayfire.h"
 #include <vector>
 #include <string>
 #include <stdexcept>
-#include "arrayfire.h"
 
 using namespace std;
 
@@ -69,6 +69,7 @@ public:
   virtual void next_timestep(){++T;};
   virtual void prev_timestep(){--T;};
   virtual void reset_timestep(){T=0;};
+
 protected:
   string logical_name;
   vector<NetworkUnit*> children;
@@ -169,8 +170,8 @@ class InputSymbolicUnit : public NetworkUnit{
   virtual af::array& get_predictions() = 0;
   virtual af::array& get_delta() {throw UnimplementedMethodException(string("get_child_at"));};
 
-  virtual unsigned in_dimensionality()const = 0;//dimension of the encoded input vector
-  virtual unsigned out_dimensionality()const = 0;//dimension of the encoded input vector
+  virtual unsigned in_dimensionality()  const = 0;//dimension of the encoded input vector
+  virtual unsigned out_dimensionality() const = 0;//dimension of the encoded input vector
   virtual unsigned vocab_size()const = 0; //number of discrete symbols expected as input
 
   virtual NetworkUnit* get_child_at(unsigned idx)  const{throw UnimplementedMethodException(string("get_child_at"));}

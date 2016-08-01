@@ -38,7 +38,7 @@ class SymbolicFeedForwardNetwork{
 
   //network geometry and network building functions
   void add_layer(char const *name,NetworkUnit *layer);
-  void add_input_layer(char const *name,InputSymbolicUnit<INSYM> *inlayer);
+  void add_input_layer(char const *name,InputSymbolicUnit<INSYM> *inlayer); //include word embeddings here
   void set_output_layer(char const *name,TopSymbolicUnit<OUTSYM> *out_layer);
   void connect_layers(char const *nameA,char const *nameB);//parent -> child
 
@@ -55,11 +55,14 @@ class SymbolicFeedForwardNetwork{
   void set_batch_data(vector<vector<INSYM>> const &xdata); 
 
   //TRAINING
-  float train_one(float alpha,bool adagrad = true, bool average=true); //performs one pred->backprop->udpate cycle on the current batch and returns the unaveraged loss for this batch
-                                //may be useful for true online learning.
+  /**
+   * performs one pred->backprop->udpate cycle on the current batch and returns the unaveraged loss for this batch
+   * useful for true online learning.
+   */
+  float train_one(float alpha,bool adagrad = true, bool average=true);
 
   /** 
-   * Performs iterative training on the current data batch.
+   * Performs batched training on a fixed data set.
    * @param ydata           : Y values ; the size of this vector == train_size
    * @param xdata           : X values ; same conventions as set_batch_data.
    * @param epochs          : num iterations
@@ -77,12 +80,14 @@ class SymbolicFeedForwardNetwork{
 		 bool adagrad = true,
 		 int average  = -1);
 
-  void train_all(DataSampler<OUTSYM,INSYM> sampler,
+  /*
+   void train_all(DataSampler<OUTSYM,INSYM> sampler,
 		 unsigned epochs,
 		 unsigned mini_batch_size,
 		 float alpha,
 		 bool adagrad = true,
 		 int average  = -1);
+  */
 
   //PREDICTION AND EVALUATION  
   float eval(vector<OUTSYM> const &ydata,
