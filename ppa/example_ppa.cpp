@@ -8,7 +8,7 @@
 
 int main(){
 
-  string training_path = "PPAttachData/training";
+  string training_path = "PPAttachData/training.lemma";
   
   string param_path = "PPAttachData/wordsketches/";
   string vpath = param_path + string("vdistrib");
