@@ -308,7 +308,7 @@ unsigned DataSampler::read_dataset(const char *original_dataset){//returns the n
   return YVALUES.size();
 }
 
-vector<string>& DataSampler::sample_datum(){
+vector<string>& DataSampler::sample_datum(string &yvalue){
 
   uniform_int_distribution<int> U(0,(this->D-1)*4);
   int idx = U( random_generator );
@@ -349,12 +349,14 @@ vector<string>& DataSampler::sample_datum(){
     if(cum_prob > 1.0){cout << "illegal cum prob : "<< cum_prob << endl;}
     if (cum_prob > r){
       XVALUES[line_idx][col_idx] = domain_values[col_idx][i];
+      yvalue = YVALUES[line_idx];
       return XVALUES[line_idx];
     }
   }
   //fall back
-  XVALUES[idx][col_idx] = domain_values[col_idx][probs.size()-1];
-  return XVALUES[idx];
+  XVALUES[line_idx][col_idx] = domain_values[col_idx][probs.size()-1];
+  yvalue = YVALUES[line_idx];
+  return XVALUES[line_idx];
 }
 
 

@@ -104,7 +104,7 @@ public:
 	      const char *pgivenx1,
 	      const char *x2givenx1p);
 
-  vector<string>& sample_datum();//no clamping
+  vector<string>& sample_datum(string &yvalue);//no clamping, the method fills yvalue with the actual Y value used
   //vector<string> sample_datum();//clamping
 
 private:

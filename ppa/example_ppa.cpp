@@ -27,11 +27,12 @@ int main(){
 		   x2x1ppath.c_str());
 
   for(int i = 0; i < 100;++i){
-    vector<string> s = samp.sample_datum();
+    string yval;
+    vector<string> s = samp.sample_datum(yval);
     for(int j = 0; j < s.size();++j){
       cout << s[j] << " ";
     }
-    cout << endl;
+    cout << yval << endl;
   }
 
   //sampler.getXdictionary(xdict);
