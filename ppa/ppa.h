@@ -2,8 +2,10 @@
 #define PPA_H
 
 #include <vector>
+#include <set>
 #include <string>
 #include <tuple>
+#include <random>
 #include <unordered_map>
 #include <unordered_set>
 #include "arrayfire.h"
@@ -13,8 +15,9 @@ using namespace std;
 
 
 class PPADataEncoder{
+
   /*
-   * This class encodes the PP attachement data of Ratnaparkhi 1994 into data structures suitable for NN.
+   *  This class encodes the PP attachement data of Ratnaparkhi 1994 into data structures suitable for NN.
    */
 public:
 
@@ -65,30 +68,64 @@ private:
   unsigned K;
 };
 
-/*
-class QuadSampler : public DataSampler{
-
-public:
-
-  ~QuadSampler();
-  QuadSampler(const char *distrib_filename,const char *dataset_filename);
-
-  void original_data_set(vector<string> &yvalues, vector<vector<string>> &xvalues);
-  void sample_data_set(vector<string> &yvalues,vector<vector<string>> &xvalues);
-  void sample_example(vector<string> &yvalues,vector<vector<string>> &xvalues,unsigned idx);//samples only example idx
-  void getXdictionary(vector<string> &dictionary);
+class ConditionalDiscreteDistribution{
+  
+ public:
+  ConditionalDiscreteDistribution(){this->K=0;};
+  ConditionalDiscreteDistribution(unsigned K){this->K=K;};
+  float operator()(string const &valueA);//unconditional...
+  float operator()(string const &valueA,string const &given_valueB);
+  float operator()(string const &valueA,string const &given_valueB,string const &given_valueC);
+  float operator()(string const &valueA,string const &given_valueB,string const &given_valueC,string const &given_valueD);
+  void set_value(string const &valueA,float val);
+  void set_value(string const &valueA,string const &given_valueB,float val);
+  void set_value(string const &valueA,string const &given_valueB,string const &given_valueC,float val);
+  void set_value(string const &valueA,string const &given_valueB,string const &given_valueC,string const &given_valueD,float val);
+  void from_file(const char *filename);
+  void get_conditioned_domain(set<string> &set_of_values)const; // returns the set of values of the Y variable from a conditional of the form P(Y|X1... Xn)
 
 protected:
-  void read_cond_distributions(const char *distrib_filename);
-  void read_dataset(const char *dataset_filename);
+
+  void set_dimensions(unsigned K){this->K = K;};
 
 private:
-  unordered_map<tuple<string,string,string>,CountDictionary<string>*> cond_distribs; //head / head-cat / prep 
-  vector<string> yvalues;
-  vector<vector<string>> xvalues;
+  int K; //the number of dimensions (up to 4)
+  unordered_map<tuple<string,string,string,string>,float> probs;
 };
-*/
 
+class DataSampler{
+ 
+public:
+  DataSampler(const char *original_dataset,
+	      const char *vdistrib,
+	      const char *x1givenv,
+	      const char *pgivenv,
+	      const char *x2givenvp,
+	      const char *pgivenx1,
+	      const char *x2givenx1p);
+
+  vector<string>& sample_datum();//no clamping
+  //vector<string> sample_datum();//clamping
+
+private:
+  unsigned read_dataset(const char *original_dataset);//returns the number of datalines
+  unsigned D = 0;//number of datalines
+  std::default_random_engine random_generator;
+  ConditionalDiscreteDistribution vdistrib;
+  ConditionalDiscreteDistribution x1givenv;
+  ConditionalDiscreteDistribution pgivenv;
+  ConditionalDiscreteDistribution pgivenx1;
+  ConditionalDiscreteDistribution x2givenvp;
+  ConditionalDiscreteDistribution x2givenx1p;
+  
+  //domains of RV
+  vector<vector<string>> domain_values; //v,x1,p,x2 values
+
+
+  //current data set
+  vector<string> YVALUES;
+  vector<vector<string>> XVALUES;
+};
 
 
 #endif

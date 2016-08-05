@@ -1,3 +1,4 @@
+#include "utils.h"
 #include "units.h"
 #include "layers.h"
 #include "activations.h"

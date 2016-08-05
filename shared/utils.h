@@ -7,6 +7,11 @@
 
 using namespace std;
 
+
+//general purpose line tokenizations function
+inline void tokenize_dataline(string const& raw_line,vector<string> &tokens,const char *delim=" \t\n");//line tokenization
+inline bool isspace(string &str);
+
 /**
  * Dictionary/mini DB style data structures for processing language data
  */
@@ -83,8 +88,6 @@ protected:
   std::unordered_map<Key,vector<Value>> dict;
   
  }; 
-
-
 
 
 ///FOR HASHING TUPLES

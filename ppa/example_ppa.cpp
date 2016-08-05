@@ -7,9 +7,33 @@
 #include "ppa.h"
 
 int main(){
+
+  string training_path = "PPAttachData/training";
   
-  //QuadSampler sampler("PPAttachData/attach_distrib.txt","PPAttachData/training");
-  vector<string> xdict;
+  string param_path = "PPAttachData/wordsketches/";
+  string vpath = param_path + string("vdistrib");
+  string x1vpath = param_path + string("x1givenv");
+  string pvpath = param_path + string("pgivenv");
+  string x2vppath = param_path + string("x2givenvp");
+  string px1path = param_path + string("pgivenx1");
+  string x2x1ppath = param_path + string("x2givenx1p");
+  
+  DataSampler samp(training_path.c_str(),
+		   vpath.c_str(),
+		   x1vpath.c_str(),
+		   pvpath.c_str(),
+		   x2vppath.c_str(),
+		   px1path.c_str(),
+		   x2x1ppath.c_str());
+
+  for(int i = 0; i < 100;++i){
+    vector<string> s = samp.sample_datum();
+    for(int j = 0; j < s.size();++j){
+      cout << s[j] << " ";
+    }
+    cout << endl;
+  }
+
   //sampler.getXdictionary(xdict);
   /*
 vector<string> yvalues;
@@ -34,11 +58,11 @@ vector<string> yvalues;
   */
 
   //External Word vectors 
-  Word2vec w2v;
-  vector<string> wvdict;
-  af::array w2v_embeddings;
-  w2v.load_dictionary("../w2v/deps.words");
-  w2v.filter(xdict);
+  //Word2vec w2v;
+  //vector<string> wvdict;
+  //af::array w2v_embeddings;
+  //w2v.load_dictionary("../w2v/deps.words");
+  //w2v.filter(xdict);
 
   //training set
   /*

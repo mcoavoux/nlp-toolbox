@@ -1,6 +1,35 @@
 #include <chrono>
 #include <numeric>
 
+
+void tokenize_dataline(string const& raw_line,vector<string> &tokens,char const *delim){
+  
+  string delimiters(delim);
+  tokens.clear();
+
+  int lpos = 0;
+  int pos = raw_line.find_first_not_of(delimiters,lpos);
+  while (pos != std::string::npos){
+    lpos = pos;
+    pos = raw_line.find_first_of(delimiters,lpos);
+    tokens.push_back(raw_line.substr(lpos,pos-lpos));
+    //cout << tokens.back()<<"*"<<endl;
+    lpos = pos;
+    pos = raw_line.find_first_not_of(delimiters,lpos);
+  }
+}
+
+bool isspace(string &str){
+  if (str.empty()){return true;}
+  for(int i = 0; i < str.size();++i){
+    if(!std::isspace(str[i])){return false;}
+  }
+  return true;
+}
+
+
+
+
 template<typename Key,typename Value>
 Dictionary<Key,Value>::Dictionary(){has_default = false;}
 

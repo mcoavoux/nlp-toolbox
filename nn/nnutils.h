@@ -20,8 +20,6 @@ public:
  * @param n: is the size of input vector
  */
 inline void nn_init_weights(af::array &X,unsigned d0,unsigned d1 = 1);       
-inline void tokenize_dataline(string const& raw_line,vector<string> &tokens,const char *delim=" \t\n");//line tokenization
-inline bool isspace(string &str);
 
 /*
  * Bijective (bidirectional) map that allows to encode decode symbols efficiently back and forth
@@ -58,12 +56,6 @@ private:
   unordered_map<SYMTYPE,unsigned> val2idx;
 };
 
-
-template<class OUTSYM,class INSYM>
-class DataSampler{
- public:
-  void sample_data_set(vector<OUTSYM> &yvalues,vector<vector<INSYM>> &xvalues);
-};
 
 #include "nnutils.hpp"
 #endif

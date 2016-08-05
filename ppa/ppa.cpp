@@ -4,6 +4,10 @@
 #include <set>
 #include <cstdlib>
 #include <algorithm>
+#include <cassert>
+#include <chrono>
+#include <random>
+#include <limits>
 
 PPADataEncoder::PPADataEncoder(const char *filename){add_data(filename);}
 PPADataEncoder::PPADataEncoder(vector<string> const &yvalues,vector<vector<string>> const &xvalues){set_data(yvalues,xvalues);}
@@ -122,137 +126,235 @@ void Word2vec::get_dimensions(const char *filename,unsigned &N,unsigned &K){
 
 }
 
-/*
-QuadSampler::QuadSampler(const char *distrib_filename,const char *dataset_filename){
+float ConditionalDiscreteDistribution::operator()(string const &cond_valueA){
 
-  read_cond_distributions(distrib_filename);
-  read_dataset(dataset_filename);
+  assert(K==1);
+  tuple<string,string,string,string> key = make_tuple(cond_valueA,string(),string(),string());
+  if (probs.find(key) == probs.end()){return std::numeric_limits<float>::epsilon();}
+  return probs[key];
 
 }
 
-QuadSampler::~QuadSampler(){
-    for(unordered_map<tuple<string,string,string>,CountDictionary<string>*>::iterator it = cond_distribs.begin();it != cond_distribs.end();++it){
-      delete it->second;
-    }
+float ConditionalDiscreteDistribution::operator()(string const &cond_valueA,string const &cond_valueB){
+
+  assert(K==2);
+  tuple<string,string,string,string> key = make_tuple(cond_valueA,cond_valueB,string(),string());
+  if (probs.find(key) == probs.end()){return std::numeric_limits<float>::epsilon();}
+  return probs[key];
+
 }
 
+float ConditionalDiscreteDistribution::operator()(string const &cond_valueA,string const &cond_valueB,string const &cond_valueC){
 
-void QuadSampler::original_data_set(vector<string> &yvalues, vector<vector<string>> &xvalues){
+  assert(K==3);
+  tuple<string,string,string,string> key = make_tuple(cond_valueA,cond_valueB,cond_valueC,string());
+  if (probs.find(key) == probs.end()){return std::numeric_limits<float>::epsilon();}
+  return probs[key];
+
+
+}
+
+float ConditionalDiscreteDistribution::operator()(string const &cond_valueA,string const &cond_valueB,string const &cond_valueC,string const &cond_valueD){
+
+  assert(K==4);
+  tuple<string,string,string,string> key = make_tuple(cond_valueA,cond_valueB,cond_valueC,cond_valueD);
+  if (probs.find(key) == probs.end()){return std::numeric_limits<float>::epsilon();}
+  return probs[key];
+
+}
+
+void ConditionalDiscreteDistribution::set_value(string const &cond_valueA,float val){
+ 
+  assert(K==1);
+  tuple<string,string,string,string> key = make_tuple(cond_valueA,string(),string(),string());
+  probs[key] = val;
+
+}
+void ConditionalDiscreteDistribution::set_value(string const &cond_valueA,string const &cond_valueB,float val){
+
+  assert(K==2);
+  tuple<string,string,string,string> key = make_tuple(cond_valueA,cond_valueB,string(),string());
+  probs[key] = val;
+
+}
+
+void ConditionalDiscreteDistribution::set_value(string const &cond_valueA,string const &cond_valueB,string const &cond_valueC,float val){
   
-  yvalues = this->yvalues;
-  xvalues = this->xvalues;
-  
+  assert(K==3);
+  tuple<string,string,string,string> key = make_tuple(cond_valueA,cond_valueB,cond_valueC,string());
+  probs[key] = val;
+
 }
 
-void QuadSampler::sample_data_set(vector<string> &yvalues,vector<vector<string>> &xvalues){
+void ConditionalDiscreteDistribution::set_value(string const &cond_valueA,string const &cond_valueB,string const &cond_valueC,string const &cond_valueD,float val){
+  
+  assert(K==4);
+  tuple<string,string,string,string> key = make_tuple(cond_valueA,cond_valueB,cond_valueC,cond_valueD);
+  probs[key] = val;
 
-  yvalues = this->yvalues;
-  xvalues = this->xvalues;
-  typedef unordered_map<tuple<string,string,string>,CountDictionary<string>*>::iterator ITR;
-  string verb("V"); 
-  for(int i = 0; i < this->xvalues.size();++i){
-    if(yvalues[i] == verb){//sample another verbal dependant
-      ITR CD = cond_distribs.find(make_tuple(xvalues[i][0],string("verb"),xvalues[i][2]));
-      if(CD != cond_distribs.end()){
-	xvalues[i][3] = CD->second->sample();
-      }
-    }else{
-      ITR CD = cond_distribs.find(make_tuple(xvalues[i][0],string("noun"),xvalues[i][2]));
-      if(CD != cond_distribs.end()){
-	xvalues[i][3] = CD->second->sample();
-      }
-    }
+}
+
+// returns the set of values of the Y variable from a conditional of the form P(Y|X1... Xn)
+void ConditionalDiscreteDistribution::get_conditioned_domain(set<string> &values)const{ 
+
+  for (unordered_map<tuple<string,string,string,string>,float>::const_iterator it = probs.begin(); it != probs.end();++it){
+    values.insert(get<0>(it->first));
   }
 }
 
-
-void QuadSampler::sample_example(vector<string> &yvalues,vector<vector<string>> &xvalues,unsigned idx){//samples only example idx
-
-  typedef unordered_map<tuple<string,string,string>,CountDictionary<string>*>::iterator ITR;
-
-  string verb("V"); 
-  if(yvalues[idx] == verb){//sample another verbal dependant
-      ITR CD = cond_distribs.find(make_tuple(xvalues[idx][0],string("verb"),xvalues[idx][2]));
-      if(CD != cond_distribs.end()){
-	xvalues[idx][3] = CD->second->sample();
-      }
-  }else{
-      ITR CD = cond_distribs.find(make_tuple(xvalues[idx][0],string("noun"),xvalues[idx][2]));
-      if(CD != cond_distribs.end()){
-	xvalues[idx][3] = CD->second->sample();
-      }
-  }
-  for(int i = 0; i < xvalues[idx].size();++i){
-    cout << xvalues[idx][i] << " ";
-  }
-  cout << yvalues[idx] << endl;
-}
+void ConditionalDiscreteDistribution::from_file(const char *filename){
 
 
-void QuadSampler::read_cond_distributions(const char *distrib_filename){
-  
-  ifstream in_file(distrib_filename);
-  // unordered_map<tuple<string,string,string>,CountDictionary<string>*> cond_distribs; //head / head-cat / prep
+  ifstream infile(filename);
   string bfr;
-  string prev_head,prev_prep;
-  CountDictionary<string> *current_dict;
-  while(getline(in_file,bfr)){
-    if(bfr.empty()){continue;}
-    vector<string> tokens;
-    tokenize_dataline(bfr,tokens);
-
-    if(tokens[2] == string("obj")){continue;}//skip additional prep='obj' line returned by sketch-engine
-
-    if (tokens[0] != prev_head || tokens[2] != prev_prep){
-
-      std::tuple<string,string,string> key = std::make_tuple(tokens[0],tokens[1],tokens[2]);
-      if (cond_distribs.find(key) == cond_distribs.end()){
-	current_dict = new CountDictionary<string>(0);
-	cond_distribs[key] = current_dict;
-      }else{
-	current_dict = cond_distribs[key];
-      }
-      prev_head = tokens[0];
-      prev_prep = tokens[2];
-    }
-    current_dict->add_count(tokens[3],std::stof(tokens[5]));
-
+  getline(infile,bfr);
+  vector<string> fields;
+  tokenize_dataline(bfr,fields);
+  double p = stod(fields.back());
+  switch (fields.size()-1){
+  case 1:
+    this->K = 1;
+    set_value(fields[0],p);
+    break;
+  case 2:
+    this->K = 2;
+    set_value(fields[0],fields[1],p);
+    break;
+  case 3:
+    this->K = 3;
+    set_value(fields[0],fields[1],fields[2],p);
+    break;
+  case 4:
+    this->K = 4;
+    set_value(fields[0],fields[1],fields[2],fields[3],p);
+    break;
+  default:
+    cerr << "conditional distrib dimensionality error\naborting."<<endl;
+    exit(1);
   }
-  in_file.close();
+  while(getline(infile,bfr)){
+    tokenize_dataline(bfr,fields);
+    double p = stod(fields.back());
+    assert(fields.size()-1 == K);
+    switch (fields.size()-1){
+    case 1:
+      set_value(fields[0],p);
+      break;
+    case 2:
+      set_value(fields[0],fields[1],p);
+      break;
+    case 3:
+      set_value(fields[0],fields[1],fields[2],p);
+      break;
+    case 4:
+      set_value(fields[0],fields[1],fields[2],fields[3],p);
+      break;
+    default:
+      cerr << "conditional distrib dimensionality error\naborting."<<endl;
+      exit(1);
+    } 
+  }
+  infile.close();
 }
 
 
-void QuadSampler::read_dataset(const char *dataset_filename){
+ 
+DataSampler::DataSampler(const char *original_dataset,
+			 const char *vdistrib,
+			 const char *x1givenv,
+			 const char *pgivenv,
+			 const char *x2givenvp,
+			 const char *pgivenx1,
+			 const char *x2givenx1p){
 
-  ifstream in_file(dataset_filename);
+  set<string> v_values;
+  set<string> x1_values;
+  set<string> p_values;
+  set<string> x2_values;
+  this->D = read_dataset(original_dataset);
+  this->vdistrib.from_file(vdistrib);
+  this->vdistrib.get_conditioned_domain(v_values);
+  this->x1givenv.from_file(x1givenv);
+  this->x1givenv.get_conditioned_domain(x1_values);
+  this->pgivenv.from_file(pgivenv);
+  this->pgivenv.get_conditioned_domain(p_values);
+  this->pgivenx1.from_file(pgivenx1);
+  this->pgivenx1.get_conditioned_domain(p_values);
+  this->x2givenvp.from_file(x2givenvp);
+  this->x2givenvp.get_conditioned_domain(x2_values);
+  this->x2givenx1p.from_file(x2givenx1p);
+  this->x2givenx1p.get_conditioned_domain(x2_values);
+
+  domain_values.push_back(vector<string>(v_values.begin(),v_values.end()));
+  domain_values.push_back(vector<string>(x1_values.begin(),x1_values.end()));
+  domain_values.push_back(vector<string>(p_values.begin(),p_values.end()));
+  domain_values.push_back(vector<string>(x2_values.begin(),x2_values.end()));
+
+  unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+  random_generator =  std::default_random_engine (seed);
+}
+
+unsigned DataSampler::read_dataset(const char *original_dataset){//returns the number of datalines
+
+  ifstream infile(original_dataset);
   string bfr;
-  while(getline(in_file,bfr)){
-    vector<string> tokens;
-    tokenize_dataline(bfr,tokens);
-    yvalues.push_back(tokens.back());
-    xvalues.push_back(vector<string>(tokens.begin()+1,tokens.end()-1));
+  vector<string> fields;
+  while(getline(infile,bfr)){
+    tokenize_dataline(bfr,fields);
+    XVALUES.push_back(vector<string>(fields.begin()+1,fields.end()-1));
+    YVALUES.push_back(fields.back());
   }
-  in_file.close();
+  infile.close();
+  return YVALUES.size();
+}
+
+vector<string>& DataSampler::sample_datum(){
+
+  uniform_int_distribution<int> U(0,(this->D-1)*4);
+  int idx = U( random_generator );
+  int line_idx = (int)( (float)idx / 4 );
+  int col_idx = idx % 4;
+
+  //need to fill domain values
+  vector<float> probs( domain_values[col_idx].size(),0.0);
+
+  if (YVALUES[line_idx] == string("N")){ //attaches to noun
+    float Z = 0;
+    for(int i = 0; i < domain_values[col_idx].size();++i){
+      probs[i]  = vdistrib(XVALUES[line_idx][0]) 
+	          * x1givenv(XVALUES[line_idx][1],XVALUES[line_idx][0]) 
+	          * pgivenx1(XVALUES[line_idx][2],XVALUES[line_idx][1])
+	          * x2givenx1p(XVALUES[line_idx][3],XVALUES[line_idx][1],XVALUES[line_idx][2]);
+      Z += probs[i];
+    }
+    for(int i = 0; i < domain_values[col_idx].size();++i){ probs[i] /= Z;}
+  }
+  if (YVALUES[line_idx] == string("V")){ //attaches to verb
+    float Z = 0;
+    for(int i = 0; i < domain_values[col_idx].size();++i){
+      probs[i]  = vdistrib(XVALUES[line_idx][0]) 
+	          * x1givenv(XVALUES[line_idx][1],XVALUES[line_idx][0]) 
+	          * pgivenv(XVALUES[line_idx][2],XVALUES[line_idx][0])
+	          * x2givenvp(XVALUES[line_idx][3],XVALUES[line_idx][0],XVALUES[line_idx][2]);
+      Z += probs[i];
+    }
+    for(int i = 0; i < domain_values[col_idx].size();++i){ probs[i] /= Z;}
+  }
+  //cumulative distrib
+  std::uniform_real_distribution<double> dist(0.0,1.0);
+  float r = dist(random_generator);
+  float cum_prob = 0;
+  for(int i = 0; i < probs.size();++i){
+    cum_prob += probs[i];
+    if(cum_prob > 1.0){cout << "illegal cum prob : "<< cum_prob << endl;}
+    if (cum_prob > r){
+      XVALUES[line_idx][col_idx] = domain_values[col_idx][i];
+      return XVALUES[line_idx];
+    }
+  }
+  //fall back
+  XVALUES[idx][col_idx] = domain_values[col_idx][probs.size()-1];
+  return XVALUES[idx];
 }
 
 
-void QuadSampler::getXdictionary(vector<string> &dictionary){
-
-  unordered_set<string> dict;
-  vector<vector<string>> xvalues;
-  //original data set...
-  for(int k = 0; k < xvalues.size();++k){dict.insert(xvalues[k].begin(),xvalues[k].end());}
-  //sampler vocabulary
-  unordered_map<tuple<string,string,string>,CountDictionary<string>*> cond_distribs;
-  for(unordered_map<tuple<string,string,string>,CountDictionary<string>*>::iterator it = cond_distribs.begin();it!=cond_distribs.end();++it){
-    CountDictionary<string> *c = it->second;
-    vector<string> keys;
-    c->getXdictionary(keys);
-    dict.insert(keys.begin(),keys.end());
-  }
-  dictionary.clear();
-  for(unordered_set<string>::iterator it = dict.begin();it!=dict.end();++it){
-    dictionary.push_back(*it);
-  }
-}
-*/
