@@ -104,8 +104,12 @@ public:
 	      const char *pgivenx1,
 	      const char *x2givenx1p);
 
-  vector<string>& sample_datum(string &yvalue);//no clamping, the method fills yvalue with the actual Y value used
-  //vector<string> sample_datum();//clamping
+  //no clamping, the method fills yvalue with the actual Y value used
+  vector<string>& sample_datum(string &yvalue);
+
+  //samples a data set of size N;
+  void generate_sample(vector<string> &yvalues,vector<vector<string>> &xvalues,unsigned N);
+  ostream& dump_sample(ostream &out,vector<string> &yvalues,vector<vector<string>> &xvalues)const;
 
 private:
   unsigned read_dataset(const char *original_dataset);//returns the number of datalines

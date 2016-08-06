@@ -308,6 +308,31 @@ unsigned DataSampler::read_dataset(const char *original_dataset){//returns the n
   return YVALUES.size();
 }
 
+void DataSampler::generate_sample(vector<string> &yvalues,vector<vector<string>> &xvalues,unsigned N){
+  yvalues.clear();
+  xvalues.clear();
+  yvalues.resize(N);
+  xvalues.resize(N);
+
+  for(int i = 0; i < N;++i){
+    string yval;
+    xvalues[i] = sample_datum(yval);
+    yvalues[i] = yval;
+  }
+}
+
+ostream& DataSampler::dump_sample(ostream &out,vector<string> &yvalues,vector<vector<string>> &xvalues)const{
+  
+  for(int i = 0; i < yvalues.size();++i){
+    for(int j = 0 ; j < xvalues[i].size();++j){
+      out << xvalues[i][j] << " ";
+    }
+    out << yvalues[i] << endl;
+  }
+  return out;
+}
+
+
 vector<string>& DataSampler::sample_datum(string &yvalue){
 
   uniform_int_distribution<int> U(0,(this->D-1)*4);
@@ -346,7 +371,7 @@ vector<string>& DataSampler::sample_datum(string &yvalue){
   float cum_prob = 0;
   for(int i = 0; i < probs.size();++i){
     cum_prob += probs[i];
-    if(cum_prob > 1.0){cout << "illegal cum prob : "<< cum_prob << endl;}
+    if(cum_prob > 1.0){cerr << "illegal cum prob : "<< cum_prob << endl;}
     if (cum_prob > r){
       XVALUES[line_idx][col_idx] = domain_values[col_idx][i];
       yvalue = YVALUES[line_idx];

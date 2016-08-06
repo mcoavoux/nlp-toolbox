@@ -9,7 +9,6 @@
 int main(){
 
   string training_path = "PPAttachData/training.lemma";
-  
   string param_path = "PPAttachData/wordsketches/";
   string vpath = param_path + string("vdistrib");
   string x1vpath = param_path + string("x1givenv");
@@ -26,14 +25,11 @@ int main(){
 		   px1path.c_str(),
 		   x2x1ppath.c_str());
 
-  for(int i = 0; i < 100;++i){
-    string yval;
-    vector<string> s = samp.sample_datum(yval);
-    for(int j = 0; j < s.size();++j){
-      cout << s[j] << " ";
-    }
-    cout << yval << endl;
-  }
+  vector<string> yvalues;
+  vector<vector<string>> xvalues;
+
+  samp.generate_sample(yvalues,xvalues,10000);
+  samp.dump_sample(cout,yvalues,xvalues);
 
   //sampler.getXdictionary(xdict);
   /*
