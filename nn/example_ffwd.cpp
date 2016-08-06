@@ -20,8 +20,8 @@ int main(){
   net.add_layer("hidden",new ReLUActivation(4));
   net.add_layer("A",new LinearLayer());
   net.add_layer("B",new LinearLayer());
-  net.add_input_layer("lookupA",new LinearLookup<string>(input_symsA,2,5)); //this layer consumes 2 token for each example processed and builds embeddings of size 10
-  net.add_input_layer("lookupB",new LinearLookup<string>(input_symsB,1,5)); //this layer consumes 1 token for each example processed and builds embeddings of size 10
+  net.add_input_layer("lookupA",new LinearLookup<string>(input_symsA,2,5)); //this layer consumes 2 token for each example processed and builds embeddings of size 5
+  net.add_input_layer("lookupB",new LinearLookup<string>(input_symsB,1,5)); //this layer consumes 1 token for each example processed and builds embeddings of size 5
   net.connect_layers("loss","top");
   net.connect_layers("top","hidden");
   net.connect_layers("hidden","A");

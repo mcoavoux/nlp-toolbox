@@ -15,12 +15,11 @@ PPADataEncoder::PPADataEncoder(vector<string> const &yvalues,vector<vector<strin
 void PPADataEncoder::add_data(const char *filename){
 
   ifstream in_file(filename);
-
   string bfr;
   vector<string> tokens;
   while (getline(in_file,bfr)){
     vector<string> tokens;
-    tokenize_dataline(bfr,tokens," ");
+    tokenize_dataline(bfr,tokens);
     yvalues.push_back(tokens[5]);
     xvalues.push_back(tokens[1]); // verb form
     xvalues.push_back(tokens[2]); // noun form
@@ -313,13 +312,32 @@ void DataSampler::generate_sample(vector<string> &yvalues,vector<vector<string>>
   xvalues.clear();
   yvalues.resize(N);
   xvalues.resize(N);
-
   for(int i = 0; i < N;++i){
     string yval;
     xvalues[i] = sample_datum(yval);
     yvalues[i] = yval;
   }
 }
+
+void  DataSampler::generate_sample(PPADataEncoder &data_set,unsigned N){
+
+  vector<string> yvals;
+  vector<vector<string>> xvals;
+  generate_sample(yvals,xvals,N);
+  data_set.set_data(yvals,xvals);
+
+}
+
+void DataSampler::getYdictionary(vector<string> &ydict)const{
+
+  ydict.clear();
+  set<string> dict;
+  for(int i = 0; i < YVALUES.size();++i){
+      dict.insert(YVALUES[i]);
+  }
+  ydict.assign(dict.begin(),dict.end());
+}
+
 
 ostream& DataSampler::dump_sample(ostream &out,vector<string> &yvalues,vector<vector<string>> &xvalues)const{
   
@@ -371,7 +389,7 @@ vector<string>& DataSampler::sample_datum(string &yvalue){
   float cum_prob = 0;
   for(int i = 0; i < probs.size();++i){
     cum_prob += probs[i];
-    if(cum_prob > 1.0){cerr << "illegal cum prob : "<< cum_prob << endl;}
+    if(cum_prob > 1.0 && i != probs.size()-1){cerr << "illegal cum prob : "<< cum_prob << ":" << i << "/"<< probs.size() << endl;}
     if (cum_prob > r){
       XVALUES[line_idx][col_idx] = domain_values[col_idx][i];
       yvalue = YVALUES[line_idx];

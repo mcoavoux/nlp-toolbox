@@ -6,7 +6,7 @@
 #include <set>
 #include <random>
 #include <sqlite3.h>
- 
+#include <algorithm> 
 
 //uses embeddings for columns with less than EMBEDDING_THRESHOLD values
 unsigned EMBEDDING_THRESHOLD = 100;
@@ -48,7 +48,7 @@ public:
 
 void Proximity::aggregate(vector<float> const &xvec,vector<float> const &yvec,float weight){
   vector<float> aggr(xvec.size(),0.0);
-  std::transform (xvec.begin(), xvec.end(), yvec.begin(),aggr.begin(), sqeuclidean());
+  std::transform(xvec.begin(), xvec.end(), yvec.begin(),aggr.begin(), sqeuclidean());
   dist += std::accumulate(aggr.begin(),aggr.end(),0,std::plus<float>())*weight;
 }
 

@@ -53,6 +53,8 @@ public:
   void load_dictionary(const char *filename);
 
   vector<string>& get_keys(){return keys;};
+  unsigned get_vocabulary_size()const{return keys.size();};
+  
   af::array& get_values(){return dict;};
   unsigned   get_embeddings_dimensions()const{return K;};
 
@@ -104,12 +106,18 @@ public:
 	      const char *pgivenx1,
 	      const char *x2givenx1p);
 
+ void getYdictionary(vector<string> &ydict)const;
+
   //no clamping, the method fills yvalue with the actual Y value used
-  vector<string>& sample_datum(string &yvalue);
+  vector<string>& sample_datum(string &yvalue);//make it const to allow parallelism
 
   //samples a data set of size N;
   void generate_sample(vector<string> &yvalues,vector<vector<string>> &xvalues,unsigned N);
+  void generate_sample(PPADataEncoder &data_set,unsigned N);
   ostream& dump_sample(ostream &out,vector<string> &yvalues,vector<vector<string>> &xvalues)const;
+
+  //default sampling size = original data size
+  unsigned default_size()const{return YVALUES.size();}
 
 private:
   unsigned read_dataset(const char *original_dataset);//returns the number of datalines
