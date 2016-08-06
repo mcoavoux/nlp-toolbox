@@ -116,7 +116,7 @@ int run_vanilla(unsigned epochs, float alpha){
   SymbolicFeedForwardNetwork<string,string> net;
   net.set_output_layer("loss",new SoftMaxLoss<string>(ydict));
   net.add_layer("top",new LinearLayer());  
-  net.add_layer("hidden",new ReLUActivation(100));
+  net.add_layer("hidden",new ReLUActivation(400));
   net.add_layer("A",new LinearLayer());
   net.add_input_layer("lookupA",new LinearLookup<string>(w2v.get_keys(),w2v.get_values(),data_set.x_vocab_size(),true));
   net.connect_layers("loss","top");
@@ -129,7 +129,7 @@ int run_vanilla(unsigned epochs, float alpha){
   data_set.getYdata(ydata);
   data_set.getXdata(xdata[0]);
   net.set_batch_data(ydata,xdata);
-  net.train_all(ydata,xdata,epochs,100,alpha,true,50);//10 epochs, batch size= 100,alpha=0.01, Adagrad=On, start averaging at 5th epoch
+  net.train_all(ydata,xdata,epochs,100,alpha,true,epochs/2);//10 epochs, batch size= 100,alpha=0.01, Adagrad=On, start averaging at 5th epoch
 
   PPADataEncoder dev_set("PPAttachData/devset.lemma");
   dev_set.getYdata(ydata);
@@ -173,7 +173,7 @@ int run_vanilla_nolemma(unsigned epochs, float alpha){
   SymbolicFeedForwardNetwork<string,string> net;
   net.set_output_layer("loss",new SoftMaxLoss<string>(ydict));
   net.add_layer("top",new LinearLayer());  
-  net.add_layer("hidden",new ReLUActivation(100));
+  net.add_layer("hidden",new ReLUActivation(400));
   net.add_layer("A",new LinearLayer());
   net.add_input_layer("lookupA",new LinearLookup<string>(w2v.get_keys(),w2v.get_values(),data_set.x_vocab_size(),true));
   net.connect_layers("loss","top");
@@ -186,7 +186,7 @@ int run_vanilla_nolemma(unsigned epochs, float alpha){
   data_set.getYdata(ydata);
   data_set.getXdata(xdata[0]);
   net.set_batch_data(ydata,xdata);
-  net.train_all(ydata,xdata,epochs,100,alpha,true,50);//10 epochs, batch size= 100,alpha=0.01, Adagrad=On, start averaging at 50th epoch
+  net.train_all(ydata,xdata,epochs,100,alpha,true,epochs/2);//10 epochs, batch size= 100,alpha=0.01, Adagrad=On, start averaging at 50th epoch
 
   PPADataEncoder dev_set("PPAttachData/devset");
   dev_set.getYdata(ydata);
@@ -205,9 +205,9 @@ int run_vanilla_nolemma(unsigned epochs, float alpha){
 
 
 int main(){
-  run_vanilla_nolemma(100,0.01);
-  //run_vanilla(100,0.01);
-  //run_sampler(10,0.01);
+  //run_vanilla_nolemma(400,0.05);
+  run_vanilla(800,0.05);
+  //run_sampler(1000,0.01);
 } 
  
 

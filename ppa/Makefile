@@ -1,6 +1,6 @@
 CXX = g++
 CFLAGS = -std=c++11 -I ../shared -I ../nn
-LDFLAGS = -lafcpu #backend switch : -lafcuda -lafopencl
+LDFLAGS = -lafcuda #backend switch : -lafcuda -lafopencl
 OLVL = -O3 
 
 
