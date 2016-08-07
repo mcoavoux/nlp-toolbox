@@ -1,6 +1,11 @@
 CXX = g++
-CFLAGS = -std=c++11 -I ../shared -I ../nn
-LDFLAGS = -lafcuda #backend switch : -lafcuda -lafopencl
+
+ifeq ($(shell uname -s),Darwin)
+	CXX = clang++   #requires clang >= 3.7 on macosx
+endif
+
+CFLAGS = -fopenmp -std=c++11 -I ../shared -I ../nn
+LDFLAGS = -lafcpu #backend switch : -lafcuda -lafopencl
 OLVL = -O3 
 
 
