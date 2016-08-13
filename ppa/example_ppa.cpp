@@ -34,7 +34,7 @@ int run_sampler(unsigned epochs,float alpha,unsigned batch_size){
     Word2vec w2v;
     vector<string> wvdict;
     af::array w2v_embeddings;
-    w2v.load_dictionary("PPAttachData/embeddings/deps.words.lemmatized.mini");
+    w2v.load_dictionary("PPAttachData/embeddings/deps.words.lemmatized");
     //w2v.filter(xdict);
 
     //make network
