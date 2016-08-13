@@ -8,6 +8,7 @@
 #include <chrono>
 #include <random>
 #include <limits>
+#include <omp.h>
 
 PPADataEncoder::PPADataEncoder(const char *filename){add_data(filename);}
 PPADataEncoder::PPADataEncoder(vector<string> const &yvalues,vector<vector<string>> const &xvalues){set_data(yvalues,xvalues);}
@@ -363,6 +364,9 @@ vector<string>& DataSampler::sample_datum(string &yvalue){
 
   if (YVALUES[line_idx] == string("N")){ //attaches to noun
     float Z = 0;
+
+    //TODO : look at the docs for the accumulator
+    #pragma omp parallel for reduction(+:Z)
     for(int i = 0; i < domain_values[col_idx].size();++i){
       probs[i]  = vdistrib(XVALUES[line_idx][0]) 
 	          * x1givenv(XVALUES[line_idx][1],XVALUES[line_idx][0]) 
@@ -370,10 +374,16 @@ vector<string>& DataSampler::sample_datum(string &yvalue){
 	          * x2givenx1p(XVALUES[line_idx][3],XVALUES[line_idx][1],XVALUES[line_idx][2]);
       Z += probs[i];
     }
-    for(int i = 0; i < domain_values[col_idx].size();++i){ probs[i] /= Z;}
+    #pragma omp parallel for
+    for(int i = 0; i < domain_values[col_idx].size();++i){ 
+      probs[i] /= Z;
+    }
   }
   if (YVALUES[line_idx] == string("V")){ //attaches to verb
     float Z = 0;
+
+    //TODO : look at the docs for the accumulator
+    #pragma omp parallel for reduction(+:Z)
     for(int i = 0; i < domain_values[col_idx].size();++i){
       probs[i]  = vdistrib(XVALUES[line_idx][0]) 
 	          * x1givenv(XVALUES[line_idx][1],XVALUES[line_idx][0]) 
@@ -381,7 +391,10 @@ vector<string>& DataSampler::sample_datum(string &yvalue){
 	          * x2givenvp(XVALUES[line_idx][3],XVALUES[line_idx][0],XVALUES[line_idx][2]);
       Z += probs[i];
     }
-    for(int i = 0; i < domain_values[col_idx].size();++i){ probs[i] /= Z;}
+    #pragma omp parallel for
+    for(int i = 0; i < domain_values[col_idx].size();++i){ 
+      probs[i] /= Z;
+    }
   }
   //cumulative distrib
   std::uniform_real_distribution<double> dist(0.0,1.0);

@@ -110,7 +110,6 @@ public:
 
   //no clamping, the method fills yvalue with the actual Y value used
   vector<string>& sample_datum(string &yvalue);//make it const to allow parallelism
-
   //samples a data set of size N;
   void generate_sample(vector<string> &yvalues,vector<vector<string>> &xvalues,unsigned N);
   void generate_sample(PPADataEncoder &data_set,unsigned N);

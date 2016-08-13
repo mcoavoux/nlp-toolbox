@@ -5,9 +5,9 @@
 #include "lookup.h"
 #include "ffwd.h"
 #include "ppa.h"
+#include <omp.h>
 
-
-int run_sampler(unsigned epochs,float alpha){
+int run_sampler(unsigned epochs,float alpha,unsigned batch_size){
 
     //load sampler
     string training_path = "PPAttachData/training.lemma";
@@ -34,7 +34,7 @@ int run_sampler(unsigned epochs,float alpha){
     Word2vec w2v;
     vector<string> wvdict;
     af::array w2v_embeddings;
-    w2v.load_dictionary("PPAttachData/embeddings/deps.words.lemmatized");
+    w2v.load_dictionary("PPAttachData/embeddings/deps.words.lemmatized.mini");
     //w2v.filter(xdict);
 
     //make network
@@ -54,15 +54,21 @@ int run_sampler(unsigned epochs,float alpha){
     for(int E = 0; E < epochs;++E){
       vector<string> ydata;
       vector<vector<string>> xdata;
-      samp.generate_sample(ydata,xdata,samp.default_size());
+      af::timer start1 = af::timer::start();
+      samp.generate_sample(ydata,xdata,batch_size);
+      printf("elapsed seconds (sampling): %g\n", af::timer::stop(start1));
+
       PPADataEncoder sampdata(ydata,xdata);
       vector<string> enc_ydata;
       vector<vector<string>> enc_xdata(1,vector<string>());
       sampdata.getYdata(enc_ydata);
       sampdata.getXdata(enc_xdata[0]);
 
-      net.set_batch_data(ydata,xdata);
+      af::timer start2 = af::timer::start();
+      net.set_batch_data(enc_ydata,enc_xdata);
       float loss = net.train_one(alpha,true,true);
+      printf("elapsed seconds (backprop): %g\n", af::timer::stop(start2));
+
 
       if (E % 100 == 0){
 	vector<string> devy;
@@ -71,7 +77,10 @@ int run_sampler(unsigned epochs,float alpha){
 	dev_set.getXdata(devx[0]);	
 	float acc = net.eval_avg(devy,devx);        //auto-eval on dev data
         cout << "epoch " << E << ", loss= " << loss << ", eval (dev) = " << acc << endl;
+      }else {
+	cout << "epoch" << E <<endl;
       }
+	      
     }
     vector<string> testy;
     vector<vector<string>> testx(1,vector<string>());
@@ -205,9 +214,10 @@ int run_vanilla_nolemma(unsigned epochs, float alpha){
 
 
 int main(){
+  omp_set_num_threads(7);
   //run_vanilla_nolemma(400,0.05);
-  run_vanilla(800,0.05);
-  //run_sampler(1000,0.01);
+  //run_vanilla(800,0.05);
+  run_sampler(1000,0.01,100);
 } 
  
 

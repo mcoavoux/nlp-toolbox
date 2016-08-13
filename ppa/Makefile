@@ -1,13 +1,12 @@
 CXX = g++
 
-ifeq ($(shell uname -s),Darwin)
-	CXX = clang++   #requires clang >= 3.7 on macosx
-endif
-
-CFLAGS = -fopenmp -std=c++11 -I ../shared -I ../nn
-LDFLAGS = -lafcpu #backend switch : -lafcuda -lafopencl
+CFLAGS = -fopenmp=libomp -std=c++11 -I ../shared -I ../nn -I/opt/local/include/libomp
+LDFLAGS = -fopenmp=libomp -lafcpu -L/opt/local/lib/libomp #backend switch : -lafcuda -lafopencl
 OLVL = -O3 
 
+ifeq ($(shell uname -s),Darwin)
+	CXX = clang++-mp-3.7   #requires clang >= 3.7 on macosx
+endif
 
 SRC = ppa.cpp example_ppa.cpp
 OBJS = ppa.o example_ppa.o

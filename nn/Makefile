@@ -1,4 +1,8 @@
 CXX = g++
+ifeq ($(shell uname -s),Darwin)
+        CXX = clang++   #requires clang >= 3.7 on macosx
+endif
+
 CFLAGS = -std=c++11 -I ../shared
 LDFLAGS = -lafcpu #backend switch : -lafcuda -lafopencl
 OLVL = -O3 
