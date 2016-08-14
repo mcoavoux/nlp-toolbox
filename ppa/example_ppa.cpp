@@ -43,7 +43,7 @@ int run_sampler(unsigned epochs,float alpha,unsigned batch_size){
     SymbolicFeedForwardNetwork<string,string> net;
     net.set_output_layer("loss",new SoftMaxLoss<string>(ydict));
     net.add_layer("top",new LinearLayer());  
-    net.add_layer("hidden",new ReLUActivation(100));
+    net.add_layer("hidden",new ReLUActivation(400));
     net.add_layer("A",new LinearLayer());
     net.add_input_layer("lookupA",new LinearLookup<string>(w2v.get_keys(),w2v.get_values(),4,false));
     net.connect_layers("loss","top");

@@ -858,7 +858,15 @@ vector<string> DataSampler::sample_datum(string &yvalue){
   float cum_prob = 0;
   for(int i = 0; i < probs.size();++i){
     cum_prob += probs[i];
-    if(cum_prob > 1.0 && i != probs.size()-1){cerr << "illegal cum prob : "<< cum_prob << ":" << i << "/"<< probs.size() << endl;}
+    if(cum_prob > 1.0 && i != probs.size()-1){
+      cerr << "illegal cum prob : "<< cum_prob << ":" << i << "/"<< probs.size() << endl;
+      float Z = 0;
+      for(int j = 0; j < probs.size();++j){
+	cout << probs[j] << " ";
+	Z+= probs[j];
+      }
+      cout << "Z=" << Z << endl;
+    }
     if (cum_prob > r){
       vector<string> xsamp(XVALUES[line_idx]);
       xsamp[col_idx] = var_dictionaries[col_idx].get_key(i);
