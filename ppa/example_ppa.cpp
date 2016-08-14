@@ -214,7 +214,7 @@ int run_vanilla_nolemma(unsigned epochs, float alpha){
 
 
 int main(){
-  omp_set_num_threads(8);
+  omp_set_num_threads(35);
   //run_vanilla_nolemma(400,0.05);
   //run_vanilla(800,0.05);
   run_sampler(10000,0.01,100);
