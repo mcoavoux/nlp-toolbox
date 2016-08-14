@@ -184,6 +184,7 @@ Value&   MultiValueDictionary<Key,Value>::get_values_mean(Key const &key){//aggr
   return (S / (float)gotit->second/size());
 }
 
+
 template<typename Key,typename Value>
 Value&  MultiValueDictionary<Key,Value>::get_values_max(Key const &key){ //aggregates with max
   typename std::unordered_map<Key,vector<Value>>::iterator gotit = dict.find(key);
@@ -197,3 +198,94 @@ void MultiValueDictionary<Key,Value>::keys(vector<Key> &keys)const{
     keys.push_back(it->first);
   } 
 }
+
+
+template<typename Key>
+BiEncoder<Key>::BiEncoder(Key const &unk_value){
+  this->has_unk = true;
+  decodemap.push_back(unk_value);
+  codemap[unk_value] = 0 ;
+}
+
+template<typename Key>
+BiEncoder<Key>::BiEncoder(vector<Key> const &keyset, Key const &unk_value){
+  
+  has_unk = true;
+  decodemap.push_back(unk_value);
+  codemap[unk_value] = 0;
+  this->decodemap.insert(decodemap.end(),keyset.begin(),keyset.end());
+  compile();
+}
+
+template<typename Key>
+void BiEncoder<Key>::compile(){
+
+  if (decodemap.size() == 0){return;}
+  Key unk_value = decodemap[0];
+
+  set<Key> kset(decodemap.begin(),decodemap.end());
+  this->decodemap.assign(kset.begin(),kset.end());
+  if (has_unk){
+    for(int i = 0; i < this->decodemap.size();++i){
+      if (this->decodemap[i] == unk_value){
+	this->decodemap[i] = this->decodemap[0];
+	this->decodemap[0] = unk_value;
+      }
+    }
+  }
+
+  for(int i = 0; i < decodemap.size();++i){
+    codemap[decodemap[i]] = i;
+  }
+  is_checked = true;
+}
+
+template<typename Key>
+BiEncoder<Key>::BiEncoder(BiEncoder const &other){
+  bool has_unk = other.has_unk;
+  bool is_checked = other.is_checked;
+  codemap = other.codemap;
+  decodemap = other.decodemap;
+}
+
+template<typename Key>
+BiEncoder<Key>& BiEncoder<Key>::operator=(BiEncoder<Key> const &other){
+  bool has_unk = other.has_unk;
+  bool is_checked = other.is_checked;
+  codemap = other.codemap;
+  decodemap = other.decodemap;
+  return *this;
+}
+
+template<typename Key>
+bool BiEncoder<Key>::has_key(Key const &key){
+  return ( codemap.find(key) != codemap.end() );
+}
+
+
+template<typename Key>
+void BiEncoder<Key>::add_key(Key const &key){
+    bool is_checked = false;
+    this->decodemap.push_back(key);
+    this->codemap[key] = decodemap.size()-1;
+}
+
+template<typename Key>
+unsigned BiEncoder<Key>::get_value(Key const &key){
+  if (!is_checked){compile();}
+  typename std::unordered_map<Key,unsigned>::iterator gotcha = codemap.find(key);
+  if (gotcha != codemap.end()){return gotcha->second;}
+  if (has_unk){return 0;}
+  throw KeyNotFoundException();
+}
+
+
+template<typename Key>
+Key& BiEncoder<Key>::get_key(unsigned const &value){
+  if (!is_checked){compile();}
+  if (value >= decodemap.size()){throw KeyNotFoundException();}
+  return decodemap[value];
+}
+
+
+

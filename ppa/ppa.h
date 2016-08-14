@@ -73,26 +73,45 @@ private:
 class ConditionalDiscreteDistribution{
   
  public:
-  ConditionalDiscreteDistribution(){this->K=0;};
-  ConditionalDiscreteDistribution(unsigned K){this->K=K;};
+  ConditionalDiscreteDistribution(){};
+  ConditionalDiscreteDistribution(const char *filename);
+  ConditionalDiscreteDistribution(vector<string> const &domainA);
+  ConditionalDiscreteDistribution(vector<string> const &domainA,vector<string> const &given_domainB);
+  ConditionalDiscreteDistribution(vector<string> const &domainA,vector<string> const &given_domainB,vector<string> const &given_domainC);
+  ConditionalDiscreteDistribution(vector<string> const &domainA,vector<string> const &given_domainB,vector<string> const &given_domainC,vector<string> const &given_domainD);
+
+  unsigned get_value_index(string value, unsigned varidx);
+
+
+  float operator()(unsigned valueA);//unconditional... P(X=x)
+  float operator()(unsigned valueA,unsigned given_valueB); // P(Y=y | X=x)
+  float operator()(unsigned valueA,unsigned given_valueB,unsigned given_valueC); // P(Y=y | X1=x1 X2=x2)
+  float operator()(unsigned valueA,unsigned given_valueB,unsigned given_valueC,unsigned given_valueD);
+
   float operator()(string const &valueA);//unconditional...
   float operator()(string const &valueA,string const &given_valueB);
   float operator()(string const &valueA,string const &given_valueB,string const &given_valueC);
   float operator()(string const &valueA,string const &given_valueB,string const &given_valueC,string const &given_valueD);
-  void set_value(string const &valueA,float val);
-  void set_value(string const &valueA,string const &given_valueB,float val);
-  void set_value(string const &valueA,string const &given_valueB,string const &given_valueC,float val);
-  void set_value(string const &valueA,string const &given_valueB,string const &given_valueC,string const &given_valueD,float val);
+
+  void get_vardomain(unsigned varidx,BiEncoder<string> &domain) const;
+  void set_vardomain(unsigned varidx,BiEncoder<string> const &domain);
+
   void from_file(const char *filename);
-  void get_conditioned_domain(set<string> &set_of_values)const; // returns the set of values of the Y variable from a conditional of the form P(Y|X1... Xn)
+  void from_file(const char *filename,vector<string> const &domainA,vector<string> const &given_domainB,vector<string> const &given_domainC,vector<string> const &given_domainD);
 
 protected:
 
   void set_dimensions(unsigned K){this->K = K;};
+  void init_matrix();
+  void set_value(string const &valueA,float val);
+  void set_value(string const &valueA,string const &given_valueB,float val);
+  void set_value(string const &valueA,string const &given_valueB,string const &given_valueC,float val);
+  void set_value(string const &valueA,string const &given_valueB,string const &given_valueC,string const &given_valueD,float val);
 
 private:
   int K; //the number of dimensions (up to 4)
-  unordered_map<tuple<string,string,string,string>,float> probs;
+  vector<vector<vector<vector<float>>>> probs;
+  vector<BiEncoder<string>> var_dictionaries;
 };
 
 class DataSampler{
@@ -106,17 +125,30 @@ public:
 	      const char *pgivenx1,
 	      const char *x2givenx1p);
 
- void getYdictionary(vector<string> &ydict)const;
+  void getYdictionary(vector<string> &ydict)const;
 
-  //no clamping, the method fills yvalue with the actual Y value used
-  vector<string>& sample_datum(string &yvalue);//make it const to allow parallelism
-  //samples a data set of size N;
+  vector<string> sample_datum(string &yvalue);
   void generate_sample(vector<string> &yvalues,vector<vector<string>> &xvalues,unsigned N);
   void generate_sample(PPADataEncoder &data_set,unsigned N);
   ostream& dump_sample(ostream &out,vector<string> &yvalues,vector<vector<string>> &xvalues)const;
 
   //default sampling size = original data size
   unsigned default_size()const{return YVALUES.size();}
+
+  void make_domains(const char *vdistrib,
+		    const char *x1givenv,
+		    const char *pgivenv,
+		    const char *pgivenx1,
+		    const char *x2givenvp,
+		    const char *x2givenx1p,
+		    vector<string> &vdomain,
+		    vector<string> &x1domain,
+		    vector<string> &pdomain,
+		    vector<string> &x2domain);
+
+protected:
+  float nominal_prob(unsigned v, unsigned x1, unsigned p,unsigned x2);
+  float verbal_prob(unsigned v, unsigned x1, unsigned p,unsigned x2);
 
 private:
   unsigned read_dataset(const char *original_dataset);//returns the number of datalines
@@ -130,7 +162,7 @@ private:
   ConditionalDiscreteDistribution x2givenx1p;
   
   //domains of RV
-  vector<vector<string>> domain_values; //v,x1,p,x2 values
+  vector<BiEncoder<string>> var_dictionaries;//v,x1,p,x2 domains
 
 
   //current data set

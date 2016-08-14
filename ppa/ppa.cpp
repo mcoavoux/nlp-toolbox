@@ -126,135 +126,281 @@ void Word2vec::get_dimensions(const char *filename,unsigned &N,unsigned &K){
 
 }
 
-float ConditionalDiscreteDistribution::operator()(string const &cond_valueA){
+
+
+float ConditionalDiscreteDistribution::operator()(unsigned valueA){
 
   assert(K==1);
-  tuple<string,string,string,string> key = make_tuple(cond_valueA,string(),string(),string());
-  if (probs.find(key) == probs.end()){return std::numeric_limits<float>::epsilon();}
-  return probs[key];
-
+  assert(valueA < var_dictionaries[0].size());
+  unsigned i = 0;
+  unsigned j = 0;
+  unsigned k = 0;
+  unsigned l = valueA ;
+  return probs[i][j][k][l];
 }
 
-float ConditionalDiscreteDistribution::operator()(string const &cond_valueA,string const &cond_valueB){
+float ConditionalDiscreteDistribution::operator()(unsigned valueA,unsigned cond_valueB){
 
   assert(K==2);
-  tuple<string,string,string,string> key = make_tuple(cond_valueA,cond_valueB,string(),string());
-  if (probs.find(key) == probs.end()){return std::numeric_limits<float>::epsilon();}
-  return probs[key];
-
+  assert(valueA < var_dictionaries[0].size());
+  assert(cond_valueB < var_dictionaries[1].size());
+  unsigned i = 0;
+  unsigned j = 0;
+  unsigned k = cond_valueB;
+  unsigned l = valueA ;
+  return probs[i][j][k][l];
 }
 
-float ConditionalDiscreteDistribution::operator()(string const &cond_valueA,string const &cond_valueB,string const &cond_valueC){
+float ConditionalDiscreteDistribution::operator()(unsigned valueA,unsigned cond_valueB,unsigned cond_valueC){
 
   assert(K==3);
-  tuple<string,string,string,string> key = make_tuple(cond_valueA,cond_valueB,cond_valueC,string());
-  if (probs.find(key) == probs.end()){return std::numeric_limits<float>::epsilon();}
-  return probs[key];
+  assert(valueA < var_dictionaries[0].size());
+  assert(cond_valueB < var_dictionaries[1].size());
+  assert(cond_valueC < var_dictionaries[2].size());
 
-
+  unsigned i = 0;
+  unsigned j = cond_valueC;
+  unsigned k = cond_valueB;
+  unsigned l = valueA ;
+  return probs[i][j][k][l];
 }
 
-float ConditionalDiscreteDistribution::operator()(string const &cond_valueA,string const &cond_valueB,string const &cond_valueC,string const &cond_valueD){
+float ConditionalDiscreteDistribution::operator()(unsigned valueA,unsigned cond_valueB,unsigned cond_valueC,unsigned cond_valueD){
 
   assert(K==4);
-  tuple<string,string,string,string> key = make_tuple(cond_valueA,cond_valueB,cond_valueC,cond_valueD);
-  if (probs.find(key) == probs.end()){return std::numeric_limits<float>::epsilon();}
-  return probs[key];
+  assert(valueA < var_dictionaries[0].size());
+  assert(cond_valueB < var_dictionaries[1].size());
+  assert(cond_valueC < var_dictionaries[2].size());
+  assert(cond_valueD < var_dictionaries[3].size());
+
+  unsigned i = cond_valueD;
+  unsigned j = cond_valueC;
+  unsigned k = cond_valueB;
+  unsigned l = valueA ;
+  return probs[i][j][k][l];
 
 }
 
-void ConditionalDiscreteDistribution::set_value(string const &cond_valueA,float val){
+
+
+void ConditionalDiscreteDistribution::set_value(string const &valueA,float val){
  
   assert(K==1);
-  tuple<string,string,string,string> key = make_tuple(cond_valueA,string(),string(),string());
-  probs[key] = val;
+  assert(var_dictionaries[0].has_key(valueA));
+  unsigned i = 0;
+  unsigned j = 0;
+  unsigned k = 0;
+  unsigned l = var_dictionaries[0].get_value(valueA);
+  probs[i][j][k][l] = val;
 
 }
-void ConditionalDiscreteDistribution::set_value(string const &cond_valueA,string const &cond_valueB,float val){
 
+void ConditionalDiscreteDistribution::set_value(string const &valueA,string const &cond_valueB,float val){
+ 
   assert(K==2);
-  tuple<string,string,string,string> key = make_tuple(cond_valueA,cond_valueB,string(),string());
-  probs[key] = val;
-
+  assert(var_dictionaries[0].has_key(valueA));
+  assert(var_dictionaries[1].has_key(cond_valueB));
+  unsigned i = 0;
+  unsigned j = 0;
+  unsigned k = var_dictionaries[1].get_value(cond_valueB);
+  unsigned l = var_dictionaries[0].get_value(valueA);
+  probs[i][j][k][l] = val;
 }
 
-void ConditionalDiscreteDistribution::set_value(string const &cond_valueA,string const &cond_valueB,string const &cond_valueC,float val){
-  
+void ConditionalDiscreteDistribution::set_value(string const &valueA,string const &cond_valueB,string const &cond_valueC,float val){
+ 
   assert(K==3);
-  tuple<string,string,string,string> key = make_tuple(cond_valueA,cond_valueB,cond_valueC,string());
-  probs[key] = val;
-
+  assert(var_dictionaries[0].has_key(valueA));
+  assert(var_dictionaries[1].has_key(cond_valueB));
+  assert(var_dictionaries[2].has_key(cond_valueC));
+  unsigned i = 0;
+  unsigned j = var_dictionaries[2].get_value(cond_valueC);
+  unsigned k = var_dictionaries[1].get_value(cond_valueB);
+  unsigned l = var_dictionaries[0].get_value(valueA);
+  probs[i][j][k][l] = val;
 }
 
-void ConditionalDiscreteDistribution::set_value(string const &cond_valueA,string const &cond_valueB,string const &cond_valueC,string const &cond_valueD,float val){
-  
+void ConditionalDiscreteDistribution::set_value(string const &valueA,string const &cond_valueB,string const &cond_valueC,string const &cond_valueD,float val){
+ 
   assert(K==4);
-  tuple<string,string,string,string> key = make_tuple(cond_valueA,cond_valueB,cond_valueC,cond_valueD);
-  probs[key] = val;
+  assert(var_dictionaries[0].has_key(valueA));
+  assert(var_dictionaries[1].has_key(cond_valueB));
+  assert(var_dictionaries[2].has_key(cond_valueC));
+  assert(var_dictionaries[3].has_key(cond_valueD));
+  unsigned i = var_dictionaries[3].get_value(cond_valueD);
+  unsigned j = var_dictionaries[2].get_value(cond_valueC);
+  unsigned k = var_dictionaries[1].get_value(cond_valueB);
+  unsigned l = var_dictionaries[0].get_value(valueA);
+  probs[i][j][k][l] = val;
+}
+
+ConditionalDiscreteDistribution::ConditionalDiscreteDistribution(vector<string> const &domainA){
+  var_dictionaries.resize(4);
+  var_dictionaries[0] = BiEncoder<string>(domainA,string("___UNK___"));
+  K = 1;
+  init_matrix();
+}
+
+ConditionalDiscreteDistribution::ConditionalDiscreteDistribution(vector<string> const &domainA,vector<string> const &cond_domainB){
+  var_dictionaries.resize(4);
+  var_dictionaries[0] = BiEncoder<string>(domainA,string("___UNK___"));
+  var_dictionaries[1] = BiEncoder<string>(cond_domainB,string("___UNK___"));
+  K = 2;
+  init_matrix();
+}
+
+ConditionalDiscreteDistribution::ConditionalDiscreteDistribution(vector<string> const &domainA,
+								 vector<string> const &cond_domainB,
+								 vector<string> const &cond_domainC){
+  var_dictionaries.resize(4);
+  var_dictionaries[0] = BiEncoder<string>(domainA,string("___UNK___"));
+  var_dictionaries[1] = BiEncoder<string>(cond_domainB,string("___UNK___"));
+  var_dictionaries[2] = BiEncoder<string>(cond_domainC,string("___UNK___"));
+  K = 3;
+  init_matrix();
+}
+
+ConditionalDiscreteDistribution::ConditionalDiscreteDistribution(vector<string> const &domainA,
+								 vector<string> const &cond_domainB,
+								 vector<string> const &cond_domainC,
+								 vector<string> const &cond_domainD){
+  var_dictionaries.resize(4);
+  var_dictionaries[0] = BiEncoder<string>(domainA,string("___UNK___"));
+  var_dictionaries[1] = BiEncoder<string>(cond_domainB,string("___UNK___"));
+  var_dictionaries[2] = BiEncoder<string>(cond_domainC,string("___UNK___"));
+  var_dictionaries[3] = BiEncoder<string>(cond_domainC,string("___UNK___"));
+  K = 4;
+  init_matrix();
 
 }
 
-// returns the set of values of the Y variable from a conditional of the form P(Y|X1... Xn)
-void ConditionalDiscreteDistribution::get_conditioned_domain(set<string> &values)const{ 
 
-  for (unordered_map<tuple<string,string,string,string>,float>::const_iterator it = probs.begin(); it != probs.end();++it){
-    values.insert(get<0>(it->first));
+void ConditionalDiscreteDistribution::init_matrix(){
+
+  probs.resize(std::max<unsigned>(var_dictionaries[2].size(),1));
+  for(int i = 0; i < var_dictionaries[3].size();++i){
+    probs[i].resize(std::max<unsigned>(var_dictionaries[2].size(),1));
+    for(int j = 0; j < var_dictionaries[2].size();++j){
+      probs[i][j].resize(std::max<unsigned>(var_dictionaries[1].size(),1));
+      for(int k = 0; k < var_dictionaries[1].size();++k){
+	probs[i][j][k].resize(var_dictionaries[0].size(),std::numeric_limits<float>::min());
+      }
+    }
   }
 }
 
-void ConditionalDiscreteDistribution::from_file(const char *filename){
+
+ConditionalDiscreteDistribution::ConditionalDiscreteDistribution(const char *filename){
+  from_file(filename);
+}
+
+unsigned ConditionalDiscreteDistribution::get_value_index(string value, unsigned varidx){
+  return var_dictionaries[varidx].get_value(value);
+}
+
+void ConditionalDiscreteDistribution::get_vardomain(unsigned varidx,BiEncoder<string> &domain)const{
+  domain = var_dictionaries[varidx];
+}
+
+void ConditionalDiscreteDistribution::set_vardomain(unsigned varidx,BiEncoder<string> const &domain){
+  var_dictionaries[varidx] = domain;
+}
 
 
+void ConditionalDiscreteDistribution::from_file(const char *filename,
+						vector<string> const &domainA,
+						vector<string> const &given_domainB,
+						vector<string> const &given_domainC,
+						vector<string> const &given_domainD){
+
+  var_dictionaries.resize(4);
+  if (domainA.size() > 0){var_dictionaries[0] = BiEncoder<string>(domainA,string("___UNK___"));K=1;}
+  if (given_domainB.size() > 0){var_dictionaries[1] = BiEncoder<string>(given_domainB,string("___UNK___"));K=2;}
+  if (given_domainC.size() > 0){var_dictionaries[2] = BiEncoder<string>(given_domainC,string("___UNK___"));K=3;}
+  if (given_domainD.size() > 0){var_dictionaries[3] = BiEncoder<string>(given_domainD,string("___UNK___"));K=4;}
   ifstream infile(filename);
   string bfr;
-  getline(infile,bfr);
-  vector<string> fields;
-  tokenize_dataline(bfr,fields);
-  double p = stod(fields.back());
-  switch (fields.size()-1){
-  case 1:
-    this->K = 1;
-    set_value(fields[0],p);
-    break;
-  case 2:
-    this->K = 2;
-    set_value(fields[0],fields[1],p);
-    break;
-  case 3:
-    this->K = 3;
-    set_value(fields[0],fields[1],fields[2],p);
-    break;
-  case 4:
-    this->K = 4;
-    set_value(fields[0],fields[1],fields[2],fields[3],p);
-    break;
-  default:
-    cerr << "conditional distrib dimensionality error\naborting."<<endl;
-    exit(1);
-  }
   while(getline(infile,bfr)){
+    vector<string> fields;
     tokenize_dataline(bfr,fields);
     double p = stod(fields.back());
-    assert(fields.size()-1 == K);
-    switch (fields.size()-1){
-    case 1:
+    fields.pop_back();
+    switch (fields.size()){
+    case 1: 
+      assert(K == 1);
       set_value(fields[0],p);
       break;
     case 2:
+      assert(K == 2);
       set_value(fields[0],fields[1],p);
       break;
     case 3:
+      assert(K == 3);
       set_value(fields[0],fields[1],fields[2],p);
       break;
     case 4:
+      assert(K == 4);
       set_value(fields[0],fields[1],fields[2],fields[3],p);
       break;
-    default:
-      cerr << "conditional distrib dimensionality error\naborting."<<endl;
-      exit(1);
-    } 
+    }
   }
   infile.close();
+}
+
+
+void ConditionalDiscreteDistribution::from_file(const char *filename){
+
+  //first pass = get var domains
+  //second pass = fill with probs
+  vector<vector<string>> vardomains;
+  ifstream infile(filename);
+  string bfr;
+  while(getline(infile,bfr)){
+    vector<string> fields;
+    tokenize_dataline(bfr,fields);
+    vardomains.push_back(fields);
+    vardomains.back().pop_back();
+  }
+  infile.close();
+
+  //build the matrix
+  var_dictionaries.clear();
+  var_dictionaries.resize(4);
+  for(int i = 0; i < 4;++i){
+    if (vardomains[i].size() > 0){
+      var_dictionaries[i] = BiEncoder<string>(vardomains[i],string("___UNK___"));
+      K = i + 1;
+    }else{
+      break;
+    }
+  }
+  //reread and fill the matrix
+  ifstream infile2(filename);
+  while(getline(infile2,bfr)){
+    vector<string> fields;
+    tokenize_dataline(bfr,fields);
+    double p = stod(fields.back());
+    fields.pop_back();
+    switch (fields.size()){
+    case 1: 
+      assert(K == 1);
+      set_value(fields[0],p);
+      break;
+    case 2:
+      assert(K == 2);
+      set_value(fields[0],fields[1],p);
+      break;
+    case 3:
+      assert(K == 3);
+      set_value(fields[0],fields[1],fields[2],p);
+      break;
+    case 4:
+      assert(K == 4);
+      set_value(fields[0],fields[1],fields[2],fields[3],p);
+      break;
+    }
+  }
+  infile2.close();
 }
 
 
@@ -267,31 +413,37 @@ DataSampler::DataSampler(const char *original_dataset,
 			 const char *pgivenx1,
 			 const char *x2givenx1p){
 
-  set<string> v_values;
-  set<string> x1_values;
-  set<string> p_values;
-  set<string> x2_values;
   this->D = read_dataset(original_dataset);
-  this->vdistrib.from_file(vdistrib);
-  this->vdistrib.get_conditioned_domain(v_values);
-  this->x1givenv.from_file(x1givenv);
-  this->x1givenv.get_conditioned_domain(x1_values);
-  this->pgivenv.from_file(pgivenv);
-  this->pgivenv.get_conditioned_domain(p_values);
-  this->pgivenx1.from_file(pgivenx1);
-  this->pgivenx1.get_conditioned_domain(p_values);
-  this->x2givenvp.from_file(x2givenvp);
-  this->x2givenvp.get_conditioned_domain(x2_values);
-  this->x2givenx1p.from_file(x2givenx1p);
-  this->x2givenx1p.get_conditioned_domain(x2_values);
+  vector<string> vdomain;
+  vector<string> x1domain;
+  vector<string> pdomain;
+  vector<string> x2domain;
+  make_domains(vdistrib,
+	       x1givenv,
+	       pgivenv,
+	       pgivenx1,
+	       x2givenvp,
+	       x2givenx1p,
+	       vdomain,
+	       x1domain,
+	       pdomain,
+	       x2domain);
 
-  domain_values.push_back(vector<string>(v_values.begin(),v_values.end()));
-  domain_values.push_back(vector<string>(x1_values.begin(),x1_values.end()));
-  domain_values.push_back(vector<string>(p_values.begin(),p_values.end()));
-  domain_values.push_back(vector<string>(x2_values.begin(),x2_values.end()));
+  this->vdistrib.from_file(vdistrib,vdomain,vector<string>(),vector<string>(),vector<string>());
+  this->x1givenv.from_file(x1givenv,x1domain,vdomain,vector<string>(),vector<string>());
+  this->pgivenv.from_file(pgivenv,pdomain,vdomain,vector<string>(),vector<string>());
+  this->pgivenx1.from_file(pgivenx1,pdomain,x1domain,vector<string>(),vector<string>());
+  this->x2givenvp.from_file(x2givenvp,x2domain,vdomain,pdomain,vector<string>());
+  this->x2givenx1p.from_file(x2givenx1p,x2domain,x1domain,pdomain,vector<string>());
+
+  var_dictionaries.push_back(BiEncoder<string>(vdomain,string("___UNK___")));
+  var_dictionaries.push_back(BiEncoder<string>(x1domain,string("___UNK___")));
+  var_dictionaries.push_back(BiEncoder<string>(pdomain,string("___UNK___")));
+  var_dictionaries.push_back(BiEncoder<string>(x2domain,string("___UNK___")));
 
   unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
   random_generator =  std::default_random_engine (seed);
+
 }
 
 unsigned DataSampler::read_dataset(const char *original_dataset){//returns the number of datalines
@@ -351,8 +503,78 @@ ostream& DataSampler::dump_sample(ostream &out,vector<string> &yvalues,vector<ve
   return out;
 }
 
+float DataSampler::nominal_prob(unsigned v, unsigned x1, unsigned p,unsigned x2){
+  return vdistrib(v) * x1givenv(x1,v) * pgivenx1(p,x1) * x2givenx1p(x2,x1,p);
+}
 
-vector<string>& DataSampler::sample_datum(string &yvalue){
+float DataSampler::verbal_prob(unsigned v, unsigned x1, unsigned p,unsigned x2){
+  return vdistrib(v) * x1givenv(x1,v) * pgivenv(p,v) * x2givenvp(x2,v,p);
+}
+
+
+void DataSampler::make_domains(const char *vdistrib,
+		    const char *x1givenv,
+		    const char *pgivenv,
+		    const char *pgivenx1,
+		    const char *x2givenvp,
+		    const char *x2givenx1p,
+		    vector<string> &vdomain,
+		    vector<string> &x1domain,
+		    vector<string> &pdomain,
+		    vector<string> &x2domain){
+
+  vdomain.clear();
+  x1domain.clear();
+  pdomain.clear();
+  x2domain.clear();
+  
+  string bfr;
+  vector<string> fields;
+
+  ifstream vstream(vdistrib);
+  while(getline(vstream,bfr)){
+    tokenize_dataline(bfr,fields);
+    vdomain.push_back(fields[0]);
+  }
+  vstream.close();
+
+  ifstream x1vstream(x1givenv);
+  while(getline(x1vstream,bfr)){
+    tokenize_dataline(bfr,fields);
+    x1domain.push_back(fields[0]);
+  }
+  x1vstream.close();
+
+  ifstream pstream(pgivenv);
+  while(getline(pstream,bfr)){
+    tokenize_dataline(bfr,fields);
+    pdomain.push_back(fields[0]);
+  }
+  pstream.close();
+
+  ifstream pstream2(pgivenx1);
+  while(getline(pstream2,bfr)){
+    tokenize_dataline(bfr,fields);
+    pdomain.push_back(fields[0]);
+  }
+  pstream2.close(); 
+
+  ifstream x2stream(x2givenx1p);
+  while(getline(x2stream,bfr)){
+    tokenize_dataline(bfr,fields);
+    x2domain.push_back(fields[0]);
+  }
+  x2stream.close();
+
+  ifstream x2stream2(x2givenvp);
+  while(getline(x2stream2,bfr)){
+    tokenize_dataline(bfr,fields);
+    x2domain.push_back(fields[0]);
+  }
+  x2stream2.close();
+}
+
+vector<string> DataSampler::sample_datum(string &yvalue){
 
   uniform_int_distribution<int> U(0,(this->D-1)*4);
   int idx = U( random_generator );
@@ -360,39 +582,82 @@ vector<string>& DataSampler::sample_datum(string &yvalue){
   int col_idx = idx % 4;
 
   //need to fill domain values
-  vector<float> probs( domain_values[col_idx].size(),0.0);
+  vector<float> probs(var_dictionaries[col_idx].size(),0.0);
+
+  unsigned v,x1,p,x2;
+  v = var_dictionaries[0].get_value(XVALUES[line_idx][0]);
+  x1 = var_dictionaries[1].get_value(XVALUES[line_idx][1]);
+  p = var_dictionaries[2].get_value(XVALUES[line_idx][2]);
+  x2 = var_dictionaries[3].get_value(XVALUES[line_idx][3]);
 
   if (YVALUES[line_idx] == string("N")){ //attaches to noun
     float Z = 0;
-
-    //TODO : look at the docs for the accumulator
-    #pragma omp parallel for reduction(+:Z)
-    for(int i = 0; i < domain_values[col_idx].size();++i){
-      probs[i]  = vdistrib(XVALUES[line_idx][0]) 
-	          * x1givenv(XVALUES[line_idx][1],XVALUES[line_idx][0]) 
-	          * pgivenx1(XVALUES[line_idx][2],XVALUES[line_idx][1])
-	          * x2givenx1p(XVALUES[line_idx][3],XVALUES[line_idx][1],XVALUES[line_idx][2]);
-      Z += probs[i];
+    if (col_idx == 0){
+      #pragma omp parallel for reduction(+:Z)
+      for(int i = 0; i < var_dictionaries[col_idx].size();++i){    
+	probs[i] = nominal_prob(i,x1,p,x2);
+	Z += probs[i];
+      }
+    }
+    else if (col_idx == 1){
+      #pragma omp parallel for reduction(+:Z)
+      for(int i = 0; i < var_dictionaries[col_idx].size();++i){    
+	probs[i] = nominal_prob(v,i,p,x2);
+	Z += probs[i];
+      }
+    }
+    else if (col_idx == 2){
+      #pragma omp parallel for reduction(+:Z)
+      for(int i = 0; i < var_dictionaries[col_idx].size();++i){    
+	probs[i] = nominal_prob(v,x1,i,x2);
+	Z += probs[i];
+      }
+    }
+    else if (col_idx == 3){
+      #pragma omp parallel for reduction(+:Z)
+      for(int i = 0; i < var_dictionaries[col_idx].size();++i){    
+	probs[i] = nominal_prob(v,x1,p,i);
+	Z += probs[i];
+      }
     }
     #pragma omp parallel for
-    for(int i = 0; i < domain_values[col_idx].size();++i){ 
+    for(int i = 0; i < var_dictionaries[col_idx].size();++i){ 
       probs[i] /= Z;
     }
   }
+
   if (YVALUES[line_idx] == string("V")){ //attaches to verb
     float Z = 0;
-
-    //TODO : look at the docs for the accumulator
-    #pragma omp parallel for reduction(+:Z)
-    for(int i = 0; i < domain_values[col_idx].size();++i){
-      probs[i]  = vdistrib(XVALUES[line_idx][0]) 
-	          * x1givenv(XVALUES[line_idx][1],XVALUES[line_idx][0]) 
-	          * pgivenv(XVALUES[line_idx][2],XVALUES[line_idx][0])
-	          * x2givenvp(XVALUES[line_idx][3],XVALUES[line_idx][0],XVALUES[line_idx][2]);
-      Z += probs[i];
+    if (col_idx == 0){
+      #pragma omp parallel for reduction(+:Z)
+      for(int i = 0; i < var_dictionaries[col_idx].size();++i){    
+	probs[i] = verbal_prob(i,x1,p,x2);
+	Z += probs[i];
+      }
+    }
+    else if (col_idx == 1){
+      #pragma omp parallel for reduction(+:Z)
+      for(int i = 0; i < var_dictionaries[col_idx].size();++i){    
+	probs[i] = verbal_prob(v,i,p,x2);
+	Z += probs[i];
+      }
+    }
+    else if (col_idx == 2){
+      #pragma omp parallel for reduction(+:Z)
+      for(int i = 0; i < var_dictionaries[col_idx].size();++i){    
+	probs[i] = verbal_prob(v,x1,i,x2);
+	Z += probs[i];
+      }
+    }
+    else if (col_idx == 3){
+      #pragma omp parallel for reduction(+:Z)
+      for(int i = 0; i < var_dictionaries[col_idx].size();++i){    
+	probs[i] = verbal_prob(v,x1,p,i);
+	Z += probs[i];
+      }
     }
     #pragma omp parallel for
-    for(int i = 0; i < domain_values[col_idx].size();++i){ 
+    for(int i = 0; i < var_dictionaries[col_idx].size();++i){ 
       probs[i] /= Z;
     }
   }
@@ -404,15 +669,17 @@ vector<string>& DataSampler::sample_datum(string &yvalue){
     cum_prob += probs[i];
     if(cum_prob > 1.0 && i != probs.size()-1){cerr << "illegal cum prob : "<< cum_prob << ":" << i << "/"<< probs.size() << endl;}
     if (cum_prob > r){
-      XVALUES[line_idx][col_idx] = domain_values[col_idx][i];
+      vector<string> xsamp(XVALUES[line_idx]);
+      xsamp[col_idx] = var_dictionaries[col_idx].get_key(i);
       yvalue = YVALUES[line_idx];
-      return XVALUES[line_idx];
+      return xsamp;
     }
   }
   //fall back
-  XVALUES[line_idx][col_idx] = domain_values[col_idx][probs.size()-1];
+  vector<string> xsamp(XVALUES[line_idx]);
+  xsamp[col_idx] = var_dictionaries[col_idx].get_key(var_dictionaries[col_idx].size()-1);
   yvalue = YVALUES[line_idx];
-  return XVALUES[line_idx];
+  return xsamp;
 }
 
 

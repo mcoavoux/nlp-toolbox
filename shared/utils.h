@@ -66,6 +66,41 @@ protected:
 };
  
 
+//Bijective Map : guarantees constant access times to both keys and values (unsigned int)
+//restriction : keys are organized in a set *and* <unsigned> values too
+//keys are expected to be strings or wstrings
+template<typename Key>
+class BiEncoder{
+public:
+  
+  BiEncoder(){};
+  BiEncoder(Key const &unk_value);
+  BiEncoder(BiEncoder const &other);
+  BiEncoder& operator=(BiEncoder const &other);
+  BiEncoder(vector<Key> const &keyset, Key const &unk_value);
+
+  //once you add a key you have no guarantee that the earlier mappings are still valid  
+  void add_key(Key const &key);
+
+  bool has_key(Key const &key);
+  unsigned get_value(Key const &key);
+  Key& get_key(unsigned const &value);
+
+  void get_keyset(vector<string> &keyset)const;
+  unsigned size()const{return decodemap.size();}
+
+protected:  
+  void compile();
+  
+
+private:
+  bool has_unk = false;
+  bool is_checked = true;
+  unordered_map<Key,unsigned> codemap;
+  vector<Key> decodemap;
+};
+
+
 //dictionary whose values are lists
 template<typename Key,typename Value>
 class MultiValueDictionary{
