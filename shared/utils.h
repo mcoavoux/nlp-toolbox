@@ -88,13 +88,14 @@ public:
 
   void get_keyset(vector<string> &keyset)const;
   unsigned size()const{return decodemap.size();}
+  bool has_backoff()const{return has_unk;}
 
 protected:  
   void compile();
   
 
 private:
-  bool has_unk = false;
+  bool has_unk = true;
   bool is_checked = true;
   unordered_map<Key,unsigned> codemap;
   vector<Key> decodemap;

@@ -57,7 +57,6 @@ public:
   
   af::array& get_values(){return dict;};
   unsigned   get_embeddings_dimensions()const{return K;};
-
   void filter(vector<string> const &word_set);//the param must be a *set* of words that we intersect with the dict
 
 protected:
@@ -68,6 +67,45 @@ private:
   vector<string> keys;
   af::array dict;
   unsigned K;
+};
+
+
+class SparseConditionalDiscreteDistribution{
+public:
+  SparseConditionalDiscreteDistribution(){};
+  SparseConditionalDiscreteDistribution(const char *filename);
+  SparseConditionalDiscreteDistribution(vector<string> const &domainA);
+  SparseConditionalDiscreteDistribution(vector<string> const &domainA,vector<string> const &given_domainB);
+  SparseConditionalDiscreteDistribution(vector<string> const &domainA,vector<string> const &given_domainB,vector<string> const &given_domainC);
+  SparseConditionalDiscreteDistribution(vector<string> const &domainA,vector<string> const &given_domainB,vector<string> const &given_domainC,vector<string> const &given_domainD);
+
+  unsigned get_value_index(string value, unsigned varidx);
+
+  float operator()(unsigned valueA);//unconditional... P(X=x)
+  float operator()(unsigned valueA,unsigned given_valueB); // P(Y=y | X=x)
+  float operator()(unsigned valueA,unsigned given_valueB,unsigned given_valueC); // P(Y=y | X1=x1 X2=x2)
+  float operator()(unsigned valueA,unsigned given_valueB,unsigned given_valueC,unsigned given_valueD);
+  float operator()(string const &valueA);//unconditional...
+  float operator()(string const &valueA,string const &given_valueB);
+  float operator()(string const &valueA,string const &given_valueB,string const &given_valueC);
+  float operator()(string const &valueA,string const &given_valueB,string const &given_valueC,string const &given_valueD);
+
+  void get_vardomain(unsigned varidx,BiEncoder<string> &domain) const;
+  void set_vardomain(unsigned varidx,BiEncoder<string> const &domain);
+
+  void from_file(const char *filename,vector<string> const &domainA,vector<string> const &given_domainB,vector<string> const &given_domainC,vector<string> const &given_domainD);
+ protected:
+  void set_value(string const &valueA,float val);
+  void set_value(string const &valueA,string const &given_valueB,float val);
+  void set_value(string const &valueA,string const &given_valueB,string const &given_valueC,float val);
+  void set_value(string const &valueA,string const &given_valueB,string const &given_valueC,string const &given_valueD,float val);
+
+ private:
+  int K;
+  typedef tuple<unsigned,unsigned,unsigned,unsigned> quad;
+  std::unordered_map<quad,float> dict;
+  vector<BiEncoder<string>> var_dictionaries;
+  
 };
 
 class ConditionalDiscreteDistribution{
@@ -98,6 +136,8 @@ class ConditionalDiscreteDistribution{
 
   void from_file(const char *filename);
   void from_file(const char *filename,vector<string> const &domainA,vector<string> const &given_domainB,vector<string> const &given_domainC,vector<string> const &given_domainD);
+
+  ostream& display_dimensions(ostream &out);
 
 protected:
 
@@ -158,9 +198,9 @@ private:
   ConditionalDiscreteDistribution x1givenv;
   ConditionalDiscreteDistribution pgivenv;
   ConditionalDiscreteDistribution pgivenx1;
-  ConditionalDiscreteDistribution x2givenvp;
-  ConditionalDiscreteDistribution x2givenx1p;
-  
+  SparseConditionalDiscreteDistribution x2givenvp;
+  SparseConditionalDiscreteDistribution x2givenx1p;
+ 
   //domains of RV
   vector<BiEncoder<string>> var_dictionaries;//v,x1,p,x2 domains
 

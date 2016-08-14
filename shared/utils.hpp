@@ -250,7 +250,7 @@ BiEncoder<Key>::BiEncoder(BiEncoder const &other){
 
 template<typename Key>
 BiEncoder<Key>& BiEncoder<Key>::operator=(BiEncoder<Key> const &other){
-  bool has_unk = other.has_unk;
+  bool has_unk    = other.has_unk;
   bool is_checked = other.is_checked;
   codemap = other.codemap;
   decodemap = other.decodemap;
@@ -259,9 +259,8 @@ BiEncoder<Key>& BiEncoder<Key>::operator=(BiEncoder<Key> const &other){
 
 template<typename Key>
 bool BiEncoder<Key>::has_key(Key const &key){
-  return ( codemap.find(key) != codemap.end() );
+  return ( codemap.find(key) != codemap.end());
 }
-
 
 template<typename Key>
 void BiEncoder<Key>::add_key(Key const &key){
@@ -276,6 +275,7 @@ unsigned BiEncoder<Key>::get_value(Key const &key){
   typename std::unordered_map<Key,unsigned>::iterator gotcha = codemap.find(key);
   if (gotcha != codemap.end()){return gotcha->second;}
   if (has_unk){return 0;}
+  cerr << "key error:" << key << endl;
   throw KeyNotFoundException();
 }
 

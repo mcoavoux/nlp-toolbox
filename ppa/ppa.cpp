@@ -187,6 +187,7 @@ void ConditionalDiscreteDistribution::set_value(string const &valueA,float val){
  
   assert(K==1);
   assert(var_dictionaries[0].has_key(valueA));
+
   unsigned i = 0;
   unsigned j = 0;
   unsigned k = 0;
@@ -274,19 +275,25 @@ ConditionalDiscreteDistribution::ConditionalDiscreteDistribution(vector<string> 
 
 }
 
-
 void ConditionalDiscreteDistribution::init_matrix(){
-
-  probs.resize(std::max<unsigned>(var_dictionaries[2].size(),1));
-  for(int i = 0; i < var_dictionaries[3].size();++i){
+  probs.resize(std::max<unsigned>(var_dictionaries[3].size(),1));
+  for(int i = 0; i < probs.size();++i){
     probs[i].resize(std::max<unsigned>(var_dictionaries[2].size(),1));
-    for(int j = 0; j < var_dictionaries[2].size();++j){
+    for(int j = 0; j < probs[i].size();++j){
       probs[i][j].resize(std::max<unsigned>(var_dictionaries[1].size(),1));
-      for(int k = 0; k < var_dictionaries[1].size();++k){
+      for(int k = 0; k < probs[i][j].size();++k){
 	probs[i][j][k].resize(var_dictionaries[0].size(),std::numeric_limits<float>::min());
       }
     }
   }
+}
+
+ostream& ConditionalDiscreteDistribution::display_dimensions(ostream &out){
+  out << "0 : " <<  var_dictionaries[0].size() 
+      << " 1 : " <<   var_dictionaries[1].size() 
+      << " 2 : " << var_dictionaries[2].size() 
+      << " 3 : " << var_dictionaries[3].size()<<endl; 
+  return out;
 }
 
 
@@ -312,6 +319,246 @@ void ConditionalDiscreteDistribution::from_file(const char *filename,
 						vector<string> const &given_domainB,
 						vector<string> const &given_domainC,
 						vector<string> const &given_domainD){
+
+  var_dictionaries.resize(4);
+  if (domainA.size() > 0){var_dictionaries[0] = BiEncoder<string>(domainA,string("___UNK___"));K=1;}
+  if (given_domainB.size() > 0){var_dictionaries[1] = BiEncoder<string>(given_domainB,string("___UNK___"));K=2;}
+  if (given_domainC.size() > 0){var_dictionaries[2] = BiEncoder<string>(given_domainC,string("___UNK___"));K=3;}
+  if (given_domainD.size() > 0){var_dictionaries[3] = BiEncoder<string>(given_domainD,string("___UNK___"));K=4;}
+
+  init_matrix();
+
+  ifstream infile(filename);
+  string bfr;
+  while(getline(infile,bfr)){
+    vector<string> fields;
+    tokenize_dataline(bfr,fields);
+    double p = stod(fields.back());
+    fields.pop_back();
+    switch (fields.size()){
+    case 1: 
+      assert(K == 1);
+      set_value(fields[0],p);
+      break;
+    case 2:
+      assert(K == 2);
+      set_value(fields[0],fields[1],p);
+      break;
+    case 3:
+      assert(K == 3);
+      set_value(fields[0],fields[1],fields[2],p);
+      break;
+    case 4:
+      assert(K == 4);
+      set_value(fields[0],fields[1],fields[2],fields[3],p);
+      break;
+    }
+  }
+  infile.close();
+}
+
+
+void ConditionalDiscreteDistribution::from_file(const char *filename){
+  
+  //first pass = get var domains
+  //second pass = fill with probs
+  vector<vector<string>> vardomains;
+  ifstream infile(filename);
+  string bfr;
+  while(getline(infile,bfr)){
+    vector<string> fields;
+    tokenize_dataline(bfr,fields);
+    vardomains.push_back(fields);
+    vardomains.back().pop_back();
+  }
+  infile.close();
+
+  //build the matrix
+  var_dictionaries.clear();
+  var_dictionaries.resize(4);
+  for(int i = 0; i < 4;++i){
+    if (vardomains[i].size() > 0){
+      var_dictionaries[i] = BiEncoder<string>(vardomains[i],string("___UNK___"));
+      K = i + 1;
+    }else{
+      break;
+    }
+  }
+  init_matrix();
+  //reread and fill the matrix
+  ifstream infile2(filename);
+  while(getline(infile2,bfr)){
+    vector<string> fields;
+    tokenize_dataline(bfr,fields);
+    double p = stod(fields.back());
+    fields.pop_back();
+    switch (fields.size()){
+    case 1: 
+      assert(K == 1);
+      set_value(fields[0],p);
+      break;
+    case 2:
+      assert(K == 2);
+      set_value(fields[0],fields[1],p);
+      break;
+    case 3:
+      assert(K == 3);
+      set_value(fields[0],fields[1],fields[2],p);
+      break;
+    case 4:
+      assert(K == 4);
+      set_value(fields[0],fields[1],fields[2],fields[3],p);
+      break;
+    }
+  }
+  infile2.close();
+}
+
+float SparseConditionalDiscreteDistribution::operator()(unsigned valueA){ //unconditional... P(X=x)
+  unordered_map<quad,float>::iterator gotcha = dict.find(make_tuple(valueA,0,0,0));
+  if(gotcha != dict.end()){return gotcha->second;}
+  else{return std::numeric_limits<float>::min();}
+}
+
+float SparseConditionalDiscreteDistribution::operator()(unsigned valueA,unsigned given_valueB){
+  unordered_map<quad,float>::iterator gotcha = dict.find(make_tuple(valueA,given_valueB,0,0));
+  if(gotcha != dict.end()){return gotcha->second;}
+  else{return std::numeric_limits<float>::min();}
+} 
+
+float SparseConditionalDiscreteDistribution::operator()(unsigned valueA,unsigned given_valueB,unsigned given_valueC){ // P(Y=y | X1=x1 X2=x2)
+  unordered_map<quad,float>::iterator gotcha = dict.find(make_tuple(valueA,given_valueB,given_valueC,0));
+  if(gotcha != dict.end()){return gotcha->second;}
+  else{return std::numeric_limits<float>::min();}
+}
+
+float SparseConditionalDiscreteDistribution::operator()(unsigned valueA,unsigned given_valueB,unsigned given_valueC,unsigned given_valueD){
+  unordered_map<quad,float>::iterator gotcha = dict.find(make_tuple(valueA,given_valueB,given_valueC,given_valueD));
+  if(gotcha != dict.end()){return gotcha->second;}
+  else{return std::numeric_limits<float>::min();}
+}
+
+float SparseConditionalDiscreteDistribution::operator()(string const &valueA){
+  unsigned idx = var_dictionaries[0].get_value(valueA);
+  return (*this)(idx);
+}
+
+float SparseConditionalDiscreteDistribution::operator()(string const &valueA,string const &given_valueB){
+
+  unsigned idx = var_dictionaries[0].get_value(valueA);
+  unsigned jdx = var_dictionaries[1].get_value(given_valueB);
+  return (*this)(idx,jdx);
+
+}
+
+float SparseConditionalDiscreteDistribution::operator()(string const &valueA,string const &given_valueB,string const &given_valueC){
+
+  unsigned idx = var_dictionaries[0].get_value(valueA);
+  unsigned jdx = var_dictionaries[1].get_value(given_valueB);
+  unsigned kdx = var_dictionaries[2].get_value(given_valueC);
+  return (*this)(idx,jdx,kdx);
+
+}
+
+float SparseConditionalDiscreteDistribution::operator()(string const &valueA,string const &given_valueB,string const &given_valueC,string const &given_valueD){
+
+  unsigned idx = var_dictionaries[0].get_value(valueA);
+  unsigned jdx = var_dictionaries[1].get_value(given_valueB);
+  unsigned kdx = var_dictionaries[2].get_value(given_valueC);
+  unsigned ldx = var_dictionaries[3].get_value(given_valueD);
+
+  return (*this)(idx,jdx,kdx,ldx);
+
+}
+
+void SparseConditionalDiscreteDistribution::set_value(string const &valueA,float val){
+
+  unsigned idx = var_dictionaries[0].get_value(valueA);
+  dict[make_tuple(idx,0,0,0)] = val;
+}
+
+void SparseConditionalDiscreteDistribution::set_value(string const &valueA,string const &given_valueB,float val){
+
+  unsigned idx = var_dictionaries[0].get_value(valueA);
+  unsigned jdx = var_dictionaries[1].get_value(given_valueB);
+  dict[make_tuple(idx,jdx,0,0)] = val;
+
+}
+void SparseConditionalDiscreteDistribution::set_value(string const &valueA,string const &given_valueB,string const &given_valueC,float val){
+
+  unsigned idx = var_dictionaries[0].get_value(valueA);
+  unsigned jdx = var_dictionaries[1].get_value(given_valueB);
+  unsigned kdx = var_dictionaries[2].get_value(given_valueC);
+  dict[make_tuple(idx,jdx,kdx,0)] = val;
+}
+void SparseConditionalDiscreteDistribution::set_value(string const &valueA,string const &given_valueB,string const &given_valueC,string const &given_valueD,float val){
+
+  unsigned idx = var_dictionaries[0].get_value(valueA);
+  unsigned jdx = var_dictionaries[1].get_value(given_valueB);
+  unsigned kdx = var_dictionaries[2].get_value(given_valueC);
+  unsigned ldx = var_dictionaries[2].get_value(given_valueD);
+  dict[make_tuple(idx,jdx,kdx,ldx)] = val;
+}
+
+unsigned SparseConditionalDiscreteDistribution::get_value_index(string value, unsigned varidx){
+  return var_dictionaries[varidx].get_value(value);
+}
+
+void SparseConditionalDiscreteDistribution::get_vardomain(unsigned varidx,BiEncoder<string> &domain) const{
+  domain = var_dictionaries[varidx];
+}
+
+void SparseConditionalDiscreteDistribution::set_vardomain(unsigned varidx,BiEncoder<string> const &domain){
+  var_dictionaries[varidx] = domain;
+}
+
+SparseConditionalDiscreteDistribution::SparseConditionalDiscreteDistribution(const char *filename){
+  //from_file(filename);
+}
+
+
+SparseConditionalDiscreteDistribution::SparseConditionalDiscreteDistribution(vector<string> const &domainA){
+  var_dictionaries.resize(4);
+  var_dictionaries[0] = BiEncoder<string>(domainA,string("___UNK___"));
+  K = 1;
+}
+
+SparseConditionalDiscreteDistribution::SparseConditionalDiscreteDistribution(vector<string> const &domainA,
+									     vector<string> const &given_domainB){
+  var_dictionaries.resize(4);
+  var_dictionaries[0] = BiEncoder<string>(domainA,string("___UNK___"));
+  var_dictionaries[1] = BiEncoder<string>(given_domainB,string("___UNK___"));
+  K = 2;
+}
+
+SparseConditionalDiscreteDistribution::SparseConditionalDiscreteDistribution(vector<string> const &domainA,
+									     vector<string> const &given_domainB,
+									     vector<string> const &given_domainC){
+  var_dictionaries.resize(4);
+  var_dictionaries[0] = BiEncoder<string>(domainA,string("___UNK___"));
+  var_dictionaries[1] = BiEncoder<string>(given_domainB,string("___UNK___"));
+  var_dictionaries[2] = BiEncoder<string>(given_domainC,string("___UNK___"));
+  K = 3;
+}
+
+SparseConditionalDiscreteDistribution::SparseConditionalDiscreteDistribution(vector<string> const &domainA,
+									     vector<string> const &given_domainB,
+									     vector<string> const &given_domainC,
+									     vector<string> const &given_domainD){
+  var_dictionaries.resize(4);
+  var_dictionaries[0] = BiEncoder<string>(domainA,string("___UNK___"));
+  var_dictionaries[1] = BiEncoder<string>(given_domainB,string("___UNK___"));
+  var_dictionaries[2] = BiEncoder<string>(given_domainC,string("___UNK___"));
+  var_dictionaries[3] = BiEncoder<string>(given_domainD,string("___UNK___"));
+  K = 4;
+}
+
+
+void SparseConditionalDiscreteDistribution::from_file(const char *filename,
+						      vector<string> const &domainA,
+						      vector<string> const &given_domainB,
+						      vector<string> const &given_domainC,
+						      vector<string> const &given_domainD){
 
   var_dictionaries.resize(4);
   if (domainA.size() > 0){var_dictionaries[0] = BiEncoder<string>(domainA,string("___UNK___"));K=1;}
@@ -347,64 +594,6 @@ void ConditionalDiscreteDistribution::from_file(const char *filename,
   infile.close();
 }
 
-
-void ConditionalDiscreteDistribution::from_file(const char *filename){
-
-  //first pass = get var domains
-  //second pass = fill with probs
-  vector<vector<string>> vardomains;
-  ifstream infile(filename);
-  string bfr;
-  while(getline(infile,bfr)){
-    vector<string> fields;
-    tokenize_dataline(bfr,fields);
-    vardomains.push_back(fields);
-    vardomains.back().pop_back();
-  }
-  infile.close();
-
-  //build the matrix
-  var_dictionaries.clear();
-  var_dictionaries.resize(4);
-  for(int i = 0; i < 4;++i){
-    if (vardomains[i].size() > 0){
-      var_dictionaries[i] = BiEncoder<string>(vardomains[i],string("___UNK___"));
-      K = i + 1;
-    }else{
-      break;
-    }
-  }
-  //reread and fill the matrix
-  ifstream infile2(filename);
-  while(getline(infile2,bfr)){
-    vector<string> fields;
-    tokenize_dataline(bfr,fields);
-    double p = stod(fields.back());
-    fields.pop_back();
-    switch (fields.size()){
-    case 1: 
-      assert(K == 1);
-      set_value(fields[0],p);
-      break;
-    case 2:
-      assert(K == 2);
-      set_value(fields[0],fields[1],p);
-      break;
-    case 3:
-      assert(K == 3);
-      set_value(fields[0],fields[1],fields[2],p);
-      break;
-    case 4:
-      assert(K == 4);
-      set_value(fields[0],fields[1],fields[2],fields[3],p);
-      break;
-    }
-  }
-  infile2.close();
-}
-
-
- 
 DataSampler::DataSampler(const char *original_dataset,
 			 const char *vdistrib,
 			 const char *x1givenv,
@@ -433,9 +622,8 @@ DataSampler::DataSampler(const char *original_dataset,
   this->x1givenv.from_file(x1givenv,x1domain,vdomain,vector<string>(),vector<string>());
   this->pgivenv.from_file(pgivenv,pdomain,vdomain,vector<string>(),vector<string>());
   this->pgivenx1.from_file(pgivenx1,pdomain,x1domain,vector<string>(),vector<string>());
-  this->x2givenvp.from_file(x2givenvp,x2domain,vdomain,pdomain,vector<string>());
   this->x2givenx1p.from_file(x2givenx1p,x2domain,x1domain,pdomain,vector<string>());
-
+  this->x2givenvp.from_file(x2givenvp,x2domain,vdomain,pdomain,vector<string>());
   var_dictionaries.push_back(BiEncoder<string>(vdomain,string("___UNK___")));
   var_dictionaries.push_back(BiEncoder<string>(x1domain,string("___UNK___")));
   var_dictionaries.push_back(BiEncoder<string>(pdomain,string("___UNK___")));
@@ -503,6 +691,7 @@ ostream& DataSampler::dump_sample(ostream &out,vector<string> &yvalues,vector<ve
   return out;
 }
 
+
 float DataSampler::nominal_prob(unsigned v, unsigned x1, unsigned p,unsigned x2){
   return vdistrib(v) * x1givenv(x1,v) * pgivenx1(p,x1) * x2givenx1p(x2,x1,p);
 }
@@ -556,9 +745,11 @@ void DataSampler::make_domains(const char *vdistrib,
   while(getline(pstream2,bfr)){
     tokenize_dataline(bfr,fields);
     pdomain.push_back(fields[0]);
+    x1domain.push_back(fields[1]);
   }
   pstream2.close(); 
 
+  
   ifstream x2stream(x2givenx1p);
   while(getline(x2stream,bfr)){
     tokenize_dataline(bfr,fields);
@@ -575,7 +766,6 @@ void DataSampler::make_domains(const char *vdistrib,
 }
 
 vector<string> DataSampler::sample_datum(string &yvalue){
-
   uniform_int_distribution<int> U(0,(this->D-1)*4);
   int idx = U( random_generator );
   int line_idx = (int)( (float)idx / 4 );
@@ -585,6 +775,7 @@ vector<string> DataSampler::sample_datum(string &yvalue){
   vector<float> probs(var_dictionaries[col_idx].size(),0.0);
 
   unsigned v,x1,p,x2;
+
   v = var_dictionaries[0].get_value(XVALUES[line_idx][0]);
   x1 = var_dictionaries[1].get_value(XVALUES[line_idx][1]);
   p = var_dictionaries[2].get_value(XVALUES[line_idx][2]);

@@ -70,7 +70,7 @@ int run_sampler(unsigned epochs,float alpha,unsigned batch_size){
       printf("elapsed seconds (backprop): %g\n", af::timer::stop(start2));
 
 
-      if (E % 100 == 0){
+      if (E % 20 == 0){
 	vector<string> devy;
 	vector<vector<string>> devx(1,vector<string>());
 	dev_set.getYdata(devy);	
@@ -214,10 +214,10 @@ int run_vanilla_nolemma(unsigned epochs, float alpha){
 
 
 int main(){
-  omp_set_num_threads(7);
+  omp_set_num_threads(8);
   //run_vanilla_nolemma(400,0.05);
   //run_vanilla(800,0.05);
-  run_sampler(1000,0.01,100);
+  run_sampler(10000,0.01,100);
 } 
  
 
