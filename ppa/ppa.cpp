@@ -784,28 +784,28 @@ vector<string> DataSampler::sample_datum(string &yvalue){
   if (YVALUES[line_idx] == string("N")){ //attaches to noun
     float Z = 0;
     if (col_idx == 0){
-      #pragma omp parallel for shared (Z,probs) reduction(+:Z)
+#pragma omp parallel for shared (probs) reduction(+:Z)
       for(int i = 0; i < var_dictionaries[col_idx].size();++i){    
 	probs[i] = nominal_prob(i,x1,p,x2);
 	Z += probs[i];
       }
     }
     else if (col_idx == 1){
-      #pragma omp parallel for shared (Z,probs) reduction(+:Z)
+      #pragma omp parallel for shared (probs) reduction(+:Z)
       for(int i = 0; i < var_dictionaries[col_idx].size();++i){    
 	probs[i] = nominal_prob(v,i,p,x2);
 	Z += probs[i];
       }
     }
     else if (col_idx == 2){
-      #pragma omp parallel for shared (Z,probs) reduction(+:Z)
+      #pragma omp parallel for shared (probs) reduction(+:Z)
       for(int i = 0; i < var_dictionaries[col_idx].size();++i){    
 	probs[i] = nominal_prob(v,x1,i,x2);
 	Z += probs[i];
       }
     }
     else if (col_idx == 3){
-      #pragma omp parallel for shared (Z,probs) reduction(+:Z)
+      #pragma omp parallel for shared (probs) reduction(+:Z)
       for(int i = 0; i < var_dictionaries[col_idx].size();++i){    
 	probs[i] = nominal_prob(v,x1,p,i);
 	Z += probs[i];
@@ -820,28 +820,28 @@ vector<string> DataSampler::sample_datum(string &yvalue){
   if (YVALUES[line_idx] == string("V")){ //attaches to verb
     float Z = 0;
     if (col_idx == 0){
-      #pragma omp parallel for shared (Z,probs) reduction(+:Z)
+      #pragma omp parallel for shared (probs) reduction(+:Z)
       for(int i = 0; i < var_dictionaries[col_idx].size();++i){    
 	probs[i] = verbal_prob(i,x1,p,x2);
 	Z += probs[i];
       }
     }
     else if (col_idx == 1){
-      #pragma omp parallel for shared (Z,probs) reduction(+:Z)
+      #pragma omp parallel for shared (probs) reduction(+:Z)
       for(int i = 0; i < var_dictionaries[col_idx].size();++i){    
 	probs[i] = verbal_prob(v,i,p,x2);
 	Z += probs[i];
       }
     }
     else if (col_idx == 2){
-      #pragma omp parallel for shared (Z,probs) reduction(+:Z)
+      #pragma omp parallel for shared (probs) reduction(+:Z)
       for(int i = 0; i < var_dictionaries[col_idx].size();++i){    
 	probs[i] = verbal_prob(v,x1,i,x2);
 	Z += probs[i];
       }
     }
     else if (col_idx == 3){
-      #pragma omp parallel for shared (Z,probs) reduction(+:Z)
+      #pragma omp parallel for shared (probs) reduction(+:Z)
       for(int i = 0; i < var_dictionaries[col_idx].size();++i){    
 	probs[i] = verbal_prob(v,x1,p,i);
 	Z += probs[i];
