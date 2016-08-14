@@ -54,9 +54,9 @@ int run_sampler(unsigned epochs,float alpha,unsigned batch_size){
     for(int E = 0; E < epochs;++E){
       vector<string> ydata;
       vector<vector<string>> xdata;
-      af::timer start1 = af::timer::start();
+      //af::timer start1 = af::timer::start();
       samp.generate_sample(ydata,xdata,batch_size);
-      printf("elapsed seconds (sampling): %g\n", af::timer::stop(start1));
+      //printf("elapsed seconds (sampling): %g\n", af::timer::stop(start1));
 
       PPADataEncoder sampdata(ydata,xdata);
       vector<string> enc_ydata;
@@ -64,10 +64,10 @@ int run_sampler(unsigned epochs,float alpha,unsigned batch_size){
       sampdata.getYdata(enc_ydata);
       sampdata.getXdata(enc_xdata[0]);
 
-      af::timer start2 = af::timer::start();
+      //af::timer start2 = af::timer::start();
       net.set_batch_data(enc_ydata,enc_xdata);
       float loss = net.train_one(alpha,true,true);
-      printf("elapsed seconds (backprop): %g\n", af::timer::stop(start2));
+      //printf("elapsed seconds (backprop): %g\n", af::timer::stop(start2));
 
 
       if (E % 20 == 0){
