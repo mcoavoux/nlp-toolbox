@@ -156,6 +156,17 @@ void translate_string(wstring &str){
   for (int i = 0; i < str.size();++i){str[i] = translate_char(str[i]);}
 }
 
+
+bool Tokenizer::is_eos(wstring const &token)const{
+  if (token.size() != 1){return false;}
+  return (token.back() == L'.' || token.back() == L'?' || token.back() == L'!');
+}
+
+bool Tokenizer::is_eos(string const &token)const{
+  if (token.size() != 1){return false;}
+  return (token.back() == '.' || token.back() == '?' || token.back() == '!');
+}
+
 void Tokenizer::normalize(wstring &bfr){
 
   //1. Normalize special chars
@@ -208,7 +219,7 @@ void Tokenizer::compile(){
   scpd_regex = boost::wregex(scpd_expr,boost::regex::optimize);
 }
 
-void Tokenizer::batch_tokenize_file(const char *src_filename,const char *dest_filename,bool column){
+void Tokenizer::batch_tokenize_file(const char *src_filename,const char *dest_filename,bool column,bool eos){
 
   ifstream infile(src_filename);
   if(!infile){cerr << "Error wrong input filename (aborting)"<< endl;exit(1);}
@@ -221,8 +232,14 @@ void Tokenizer::batch_tokenize_file(const char *src_filename,const char *dest_fi
      set_line(bfr);
      if(!column && next_token(res)){outfile << res;}
      while(next_token(res)){
-       if (column){outfile << res << endl;}
-       else{outfile << " " << res ;}
+       if (column){
+	 outfile << res << endl;
+	 if (eos && is_eos(res)){outfile << endl;}
+       }
+       else{
+	 outfile << " " << res ;
+	 if (eos && is_eos(res)){outfile << endl;}
+       }
      }
      outfile << endl;
   }

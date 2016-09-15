@@ -17,13 +17,18 @@ public:
   void compile();//compile all the regexes before running
   bool next_token(wstring &token);   //assign the next token (as UTF32) found in the line and returns false when eof is reached.
   bool next_token(string &token);   //assign the next token (as UTF8) found in the line and returns false when eof is reached.
-  void batch_tokenize_file(const char *src_filename,const char *dest_filename,bool column=false);
+  //void batch_tokenize_file(const char *src_filename,const char *dest_filename,bool column=false);
+  void batch_tokenize_file(const char *src_filename,const char *dest_filename,bool column=false,bool eos=false);
 
   void set_line(string const &line);//sets the next UTF8 line to tokenize
   void add_weak_cpd_dictionary(string const &dict_name,const char *filename);//compounds whose components are separated with "_"
   void add_strong_cpd_dictionary(string const &dict_name,const char *filename);//compounds whose components are concatenated
   void add_prefix_dictionary(string const &dict_name,const char *filename);//prefixes followed by hyphen followed by words
   
+  //provides an educated guess on the end of sentence status of a token
+  bool is_eos(wstring const &token)const; 
+  bool is_eos(string const &token)const; 
+
  protected:
   void normalize(wstring &str);
   wstring make_dictionary_regex(const char *filename);
