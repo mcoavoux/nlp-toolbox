@@ -227,18 +227,20 @@ void Tokenizer::batch_tokenize_file(const char *src_filename,const char *dest_fi
   string bfr;
   string res;
   while(getline(infile,bfr)){
+    bool is_init_line = true;
     //cerr << bfr << endl;
      if(bfr.empty() || bfr.find_first_not_of(' ') == std::string::npos){continue;}//aborts if empty or white space
      set_line(bfr);
-     if(!column && next_token(res)){outfile << res;}
+     //if(!column && next_token(res)){outfile << res;}
      while(next_token(res)){
        if (column){
 	 outfile << res << endl;
 	 if (eos && is_eos(res)){outfile << endl;}
        }
        else{
-	 outfile << " " << res ;
-	 if (eos && is_eos(res)){outfile << endl;}
+	 if (is_init_line){outfile << res;is_init_line=false;}
+	 else{outfile << " " << res ;}
+	 if (eos && is_eos(res)){outfile << endl;is_init_line=true;}
        }
      }
      outfile << endl;
