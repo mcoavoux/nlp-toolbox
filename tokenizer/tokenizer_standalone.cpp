@@ -2,8 +2,16 @@
 #include <iostream>
 #include <getopt.h>
 
+void display_help_msg(){
+  cerr << "usage : tokenizer <input_filename> <output_filename>"<< endl;
+  cerr << "--help        displays this message and exits." << endl;
+  cerr << "--path        path to param files directory (default = '.')" << endl;
+  cerr << "--column      outputs tokens in columns" << endl;
+  cerr << "--sentence    performs sentence segmentation" << endl;
+}
 
-int main(int argc, char* argv[]) {
+
+int main(int argc, char* argv[]){
 
   string path=".";
   bool debug = false;
@@ -32,6 +40,9 @@ int main(int argc, char* argv[]) {
     case 's':
       sent_boundary = true;
       break;
+    case 'h':
+      display_help_msg();
+      exit(0); 
     default:
       break;
   }
@@ -39,16 +50,14 @@ int main(int argc, char* argv[]) {
 
  if (optind+1 < argc){//we have still at least two positional arguments
    Tokenizer tok;
-   tok.add_strong_cpd_dictionary(string("strong"),(path+string("/strong-cpd.dic")).c_str());
-   tok.add_strong_cpd_dictionary(string("abbr"),(path+string("/abbreviations-full.dic")).c_str());
+   tok.add_strong_cpd_dictionary(string("strong"),(path+string("/strong-cpd-full.dic")).c_str());
    tok.add_weak_cpd_dictionary(string("cpd"),(path+string("/weakcpd-full.dic")).c_str()); 
-   tok.add_prefix_dictionary(string("prefixes-hyphen"),(path+string("/prefixes-hyphen-full.dic")).c_str());
-   tok.add_prefix_dictionary(string("prefixes-quote"),(path+string("/prefixes-quotes-full.dic")).c_str());
+   tok.add_prefix_dictionary(string("prefixes-hyphen"),(path+string("/prefixes-full.dic")).c_str());
    tok.compile();
    tok.batch_tokenize_file(argv[optind],argv[optind+1],column,sent_boundary);      
   }else{
    cerr << "missing input or output files. aborting."<< endl;
-   cerr << "usage : tokenizer <input_filename> <output_filename>"<<endl;
+   display_help_msg();
    exit(1);
   }
 }

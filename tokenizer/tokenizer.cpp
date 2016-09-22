@@ -47,7 +47,7 @@ bool Tokenizer::next_token(wstring const &buffer,wstring &token){
     token.reserve(end-idx);
     for(; idx < end;++idx){
       if(buffer[idx] != L' '){
-	token.push_back(buffer[idx]);
+          token.push_back(buffer[idx]);
       }
     }
     bidx += what.length();
@@ -76,8 +76,8 @@ bool Tokenizer::next_token(wstring const &buffer,wstring &token){
       bidx = bidx + what.length();
     }
     return found;
-
 }
+
 
 wstring Tokenizer::make_dictionary_regex(const char *filename){
 
