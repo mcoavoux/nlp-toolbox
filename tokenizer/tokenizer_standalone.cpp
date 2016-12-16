@@ -36,9 +36,9 @@ int main(int argc, char* argv[]){
     {"debug",     no_argument,  0, 'd'},
     {"column",     no_argument,  0, 'c'},
     {"sentence",     no_argument,  0, 's'},
-    {"strong-compounds",     no_argument,  0, 'S'},
-    {"weak-compounds",     no_argument,  0, 'W'},
-    {"prefixes",     no_argument,  0, 'P'},
+    {"strong-compounds",     required_argument,  0, 'S'},
+    {"weak-compounds",     required_argument,  0, 'W'},
+    {"prefixes",     required_argument,  0, 'P'},
     {0,0,0,0}
   };
 
@@ -46,13 +46,13 @@ int main(int argc, char* argv[]){
   while((c = getopt_long(argc, argv, "csdS:W:P:",longopts,NULL)) != -1){
     switch(c){
     case 'S':
-      strongcpd = optarg;
+      strongcpd = string(optarg);
       break;
     case 'W':
-      weakcpd = optarg;
+      weakcpd = string(optarg);
       break;
     case 'P':
-      prefixcpd = optarg;
+      prefixcpd = string(optarg);
       break;
     case 'd':
       debug = true;

@@ -197,14 +197,16 @@ void Tokenizer::compile(){
   full_regex = boost::wregex(L"(^[^ \\n\\s\\t]+)",boost::regex::optimize);//basic
 
   //weak compounds
-  wstring wcpd_expr(L"^(");
-  for(int i = 0; i < wcpd_dictionaries.size();++i){
-     wcpd_expr += wcpd_dictionaries[i]+L"|";
+  if(!wcpd_dictionaries.empty()){
+      wstring wcpd_expr(L"^(");
+      for(int i = 0; i < wcpd_dictionaries.size();++i){
+          wcpd_expr += wcpd_dictionaries[i]+L"|";
+      }
+      wcpd_expr.pop_back();
+      wcpd_expr += L")";
+      if (debug){wcerr << L"Weak compound regex:" << endl << wcpd_expr << endl << endl;}
+      wcpd_regex = boost::wregex(wcpd_expr,boost::regex::optimize);
   }
-  wcpd_expr.pop_back();
-  wcpd_expr += L")";
-  if (debug){wcerr << L"Weak compound regex:" << endl << wcpd_expr << endl << endl;}
-  wcpd_regex = boost::wregex(wcpd_expr,boost::regex::optimize);
 
   //strong compounds (also includes dates and numbers)
   wstring scpd_expr(L"^(");
