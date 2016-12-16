@@ -54,19 +54,21 @@ bool Tokenizer::next_token(wstring const &buffer,wstring &token){
     return true;
   }
   //C. attempts to match weak compound
-  cpd_found = boost::regex_search(bidx,buffer.end(),what,wcpd_regex);
-  if (cpd_found){//subs whitespaces by '_'
-    int idx = std::distance(buffer.begin(), bidx);
-    int end = idx+what.length();
-    token.resize(end-idx);
-    int copy_idx = 0;
-    for(; idx < end;++idx){
-      if(buffer[idx] == L' '){token[copy_idx] = L'_';}
-      else{token[copy_idx] = buffer[idx];}
-      ++copy_idx;
-    }
-    bidx += what.length();
-    return true;
+  if(!wcpd_dictionaries.empty()){
+      cpd_found = boost::regex_search(bidx,buffer.end(),what,wcpd_regex);
+      if (cpd_found){//subs whitespaces by '_'
+          int idx = std::distance(buffer.begin(), bidx);
+          int end = idx+what.length();
+          token.resize(end-idx);
+          int copy_idx = 0;
+          for(; idx < end;++idx){
+              if(buffer[idx] == L' '){token[copy_idx] = L'_';}
+              else{token[copy_idx] = buffer[idx];}
+              ++copy_idx;
+          }
+          bidx += what.length();
+          return true;
+      }
   }
   //D. matches next regular word otherwise
   found = boost::regex_search(bidx,buffer.end(),what,full_regex);
@@ -209,7 +211,6 @@ void Tokenizer::compile(){
   for(int i = 0; i < scpd_dictionaries.size();++i){
      scpd_expr += scpd_dictionaries[i]+L"|";
   }
-
   scpd_expr += L"([0-9]+( ([/,\\.])? ?[0-9]+)+)"; //numbers/dates sub expression 
   scpd_expr += L"|([0-9]+( (ème|eme|er|e|è) ))";//(partially including ordinals)
   scpd_expr += L"|( ?\\-)+";                         //hyphens
