@@ -31,11 +31,14 @@ int main(int argc, char* argv[]){
   bool debug = false;
   bool column = false;
   bool sent_boundary = false;
+  bool parag_boundary = false;
+
   const struct option longopts[] =
   {
     {"debug",     no_argument,  0, 'd'},
     {"column",     no_argument,  0, 'c'},
     {"sentence",     no_argument,  0, 's'},
+    {"paragraph",     no_argument,  0, 'p'},
     {"strong-compounds",     required_argument,  0, 'S'},
     {"weak-compounds",     required_argument,  0, 'W'},
     {"prefixes",     required_argument,  0, 'P'},
@@ -63,6 +66,9 @@ int main(int argc, char* argv[]){
     case 's':
       sent_boundary = true;
       break;
+    case 'p':
+      parag_boundary = true;
+      break;
     case 'h':
       display_help_msg();
       exit(0); 
@@ -77,7 +83,7 @@ int main(int argc, char* argv[]){
    if(!weakcpd.empty()){tok.add_weak_cpd_dictionary(string("cpd"),weakcpd.c_str());}
    if(!prefixcpd.empty()){tok.add_prefix_dictionary(string("prefixes-hyphen"),prefixcpd.c_str());}
    tok.compile();
-   tok.batch_tokenize_file(argv[optind],argv[optind+1],column,sent_boundary);      
+   tok.batch_tokenize_file(argv[optind],argv[optind+1],column,sent_boundary,parag_boundary);
   }else{
    cerr << "missing input or output files. aborting."<< endl;
    display_help_msg();

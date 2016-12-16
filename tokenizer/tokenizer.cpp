@@ -53,8 +53,8 @@ bool Tokenizer::next_token(wstring const &buffer,wstring &token){
     bidx += what.length();
     return true;
   }
-  //C. attempts to match weak compound
   if(!wcpd_dictionaries.empty()){
+      //C. attempts to match weak compound
       cpd_found = boost::regex_search(bidx,buffer.end(),what,wcpd_regex);
       if (cpd_found){//subs whitespaces by '_'
           int idx = std::distance(buffer.begin(), bidx);
@@ -222,7 +222,7 @@ void Tokenizer::compile(){
   scpd_regex = boost::wregex(scpd_expr,boost::regex::optimize);
 }
 
-void Tokenizer::batch_tokenize_file(const char *src_filename,const char *dest_filename,bool column,bool eos){
+void Tokenizer::batch_tokenize_file(const char *src_filename,const char *dest_filename,bool column,bool eos,bool paragraph_break){
 
   ifstream infile(src_filename);
   if(!infile){cerr << "Error wrong input filename (aborting)"<< endl;exit(1);}
@@ -232,21 +232,20 @@ void Tokenizer::batch_tokenize_file(const char *src_filename,const char *dest_fi
   while(getline(infile,bfr)){
     bool is_init_line = true;
     //cerr << bfr << endl;
-     if(bfr.empty() || bfr.find_first_not_of(' ') == std::string::npos){continue;}//aborts if empty or white space
+     if(bfr.empty() || bfr.find_first_not_of(" \n\t") == std::string::npos){continue;}//aborts if empty or white space
      set_line(bfr);
      //if(!column && next_token(res)){outfile << res;}
      while(next_token(res)){
        if (column){
-	 outfile << res << endl;
-	 if (eos && is_eos(res)){outfile << endl;}
-       }
-       else{
-	 if (is_init_line){outfile << res;is_init_line=false;}
-	 else{outfile << " " << res ;}
-	 if (eos && is_eos(res)){outfile << endl;is_init_line=true;}
+           outfile << res << endl;
+           if (eos && is_eos(res)){outfile << endl;}
+       }else{
+           if (is_init_line){outfile << res;is_init_line=false;}
+           else{outfile << " " << res ;}
+           if (eos && is_eos(res)){outfile << endl;is_init_line=true;}
        }
      }
-     outfile << endl;
+     if (paragraph_break){outfile << endl;}//attempts to preserve parag structure.
   }
   infile.close();
   outfile.close();

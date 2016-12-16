@@ -18,7 +18,7 @@ public:
   bool next_token(wstring &token);   //assign the next token (as UTF32) found in the line and returns false when eof is reached.
   bool next_token(string &token);   //assign the next token (as UTF8) found in the line and returns false when eof is reached.
   //void batch_tokenize_file(const char *src_filename,const char *dest_filename,bool column=false);
-  void batch_tokenize_file(const char *src_filename,const char *dest_filename,bool column=false,bool eos=false);
+  void batch_tokenize_file(const char *src_filename,const char *dest_filename,bool column=false,bool eos=false,bool parag_break=false);
 
   void set_line(string const &line);//sets the next UTF8 line to tokenize
   void add_weak_cpd_dictionary(string const &dict_name,const char *filename);//compounds whose components are separated with "_"
