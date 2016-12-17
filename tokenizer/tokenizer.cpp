@@ -138,7 +138,9 @@ void Tokenizer::add_prefix_dictionary(string const &dict_name,const char *filena
 
 
 wchar_t translate_char(const wchar_t c){  
-
+    
+    
+  if (int(c) == 160) {return L' ';} //espace insecable
   switch (c){
     case L'“':
     case L'”':
