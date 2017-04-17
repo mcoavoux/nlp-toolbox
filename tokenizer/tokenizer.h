@@ -42,9 +42,11 @@ private:
   vector<wstring> scpd_dictionaries;
 
   //Normalization regexes
+  boost::wregex norm_dots_regex;
   boost::wregex norm_wsp_regex;
   boost::wregex norm_ponct_regex;
   boost::wregex norm_apos_regex;//glues apostrophes to the leftmost word
+  boost::wregex norm_oe_regex;//glues apostrophes to the leftmost word
   
   //segmentation regexes
   boost::wregex wsp_regex;//skips leading white space during segmentation

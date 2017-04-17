@@ -42,6 +42,7 @@ celles+-+ci
 celles+-+là
 ceux+-+ci
 ceux+-+là
+là+-+bas
 prud'+homme
 prud'+hommes
 arc+-+en+-+ciel
@@ -64,6 +65,7 @@ art+\.
 astron+\.	
 av+\.	
 av+\.j+\.+-+c+\.
+av+\.J+\.+-+C+\.
 bdc+\.	
 bibl+\. nat+\.
 bibliogr+\.
@@ -87,6 +89,7 @@ c+\.+civ+\.
 c+\.+pén+\.
 col+\.
 coll+\.	
+couv+\.
 cie+\.
 cf+\.
 cfr\+.	
@@ -100,6 +103,7 @@ encycl+\.
 env+\.
 ép+\.
 épil+\.	
+et+al+\.
 etc+\.	
 étym+\.
 ex+\.
@@ -131,6 +135,8 @@ inf+\.
 introd+\.
 invar+\.
 ital+\.
+j+\.
+jr+\.
 jur+\.
 l+\.
 larg+\. 
@@ -154,6 +160,8 @@ n+\.d+\.+a+\.
 n+\.d+\.+e+\.	
 n+\.d+\.+l+\.r+\.
 n+\.d+\.+t+\.
+no+\.
+nr+\.
 nouv+\.
 numism+\.
 obs+\.	
@@ -173,6 +181,7 @@ pl+\.
 plur+\.
 préf+\.
 p+\.+-+s+\.
+pp+\.
 rel+\.
 réf+\.
 ref+\.
@@ -190,6 +199,7 @@ subst+\.
 suiv+\.
 suppl+\.
 s+\.+v+\.+p+\.
+s+\.+v+\.
 t+\.
 tél+\.
 t+\.s+\.v+\.+p+\.

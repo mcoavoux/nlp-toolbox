@@ -160,7 +160,6 @@ void translate_string(wstring &str){
   for (int i = 0; i < str.size();++i){str[i] = translate_char(str[i]);}
 }
 
-
 bool Tokenizer::is_eos(wstring const &token)const{
   if (token.size() != 1){return false;}
   return (token.back() == L'.' || token.back() == L'?' || token.back() == L'!');
@@ -179,9 +178,11 @@ void Tokenizer::normalize(wstring &bfr){
 
   //2. Normalize spaces around ponct
   bfr = boost::regex_replace(bfr,norm_ponct_regex,L" $& ");//wsp around ponct
+  bfr = boost::regex_replace(bfr,norm_dots_regex,L"...");//manages ... special chars
   bfr = boost::regex_replace(bfr,norm_wsp_regex,L" ");//one wsp between tokens
   bfr = boost::regex_replace(bfr,norm_apos_regex,L"'");//apostrophes on left token
-
+  bfr = boost::regex_replace(bfr,norm_oe_regex,L"oe");
+    
   if(bfr.front() == L' '){bfr.erase(0,1);} //removes any remaining leading wsp
   if(bfr.back() == L' '){bfr.pop_back();} //removes any remaining trailing wsp
   //wcout << bfr << endl;
@@ -191,8 +192,10 @@ void Tokenizer::compile(){
 
   //basic normalisation regexes
   norm_wsp_regex   = boost::wregex(L"([ \\n\\s\\t])+",boost::regex::optimize);//spaces
-  norm_ponct_regex = boost::wregex(L"[\\?!\\{;,\\}\\.:/=\\+\\(\\)\\[\\]\"'\\-…]",boost::regex::optimize);//split all poncts agressively 
+  norm_ponct_regex = boost::wregex(L"[\\?!\\{;,\\}\\.:/=\\+\\(\\)\\[\\]\"'\\-…]",boost::regex::optimize);//split all poncts agressively
   norm_apos_regex  = boost::wregex(L" '",boost::regex::optimize);//apostrophes
+  norm_dots_regex  = boost::wregex(L"…",boost::regex::optimize);//dots
+  norm_oe_regex    = boost::wregex(L"œ",boost::regex::optimize);//oe
   
   //segmentation core regexes
   wsp_regex = boost::wregex(L"([ \\n\\s\\t])*",boost::regex::optimize);//wsp
@@ -210,15 +213,16 @@ void Tokenizer::compile(){
       wcpd_regex = boost::wregex(wcpd_expr,boost::regex::optimize);
   }
 
-  //strong compounds (also includes dates and numbers)
+  //strong compounds (also includes dates, numbers and URLs)
   wstring scpd_expr(L"^(");
   for(int i = 0; i < scpd_dictionaries.size();++i){
-     scpd_expr += scpd_dictionaries[i]+L"|";
+     scpd_expr += scpd_dictionaries[i]+L" |";
   }
   scpd_expr += L"([0-9]+( ([/,\\.])? ?[0-9]+)+)"; //numbers/dates sub expression 
   scpd_expr += L"|([0-9]+( (ème|eme|er|e|è) ))";//(partially including ordinals)
   scpd_expr += L"|( ?\\-)+";                         //hyphens
   scpd_expr += L"|([A-ZÊÙÈÀÂÔÎÉÁ] (\\. )?)+";      //sigles et acronymes (?)
+  scpd_expr += L"|((https? : \\/ \\/ )|(www))([\\da-z\\. -]+) \\. ([a-z\\. ]{2,6})([\\/\\w ~=\\?\\.-]*)*( \\/)? ";//URLs
   scpd_expr += L")";
   if (debug){wcerr << L"Strong compound regex:" << endl << scpd_expr << endl << endl;}
   scpd_regex = boost::wregex(scpd_expr,boost::regex::optimize);
