@@ -222,7 +222,7 @@ void Tokenizer::compile(){
   scpd_expr += L"|([0-9]+( (ème|eme|er|e|è) ))";//(partially including ordinals)
   scpd_expr += L"|( ?\\-)+";                         //hyphens
   scpd_expr += L"|([A-ZÊÙÈÀÂÔÎÉÁ] (\\. )?)+";      //sigles et acronymes (?)
-  scpd_expr += L"|((https? : \\/ \\/ )|(www))([\\da-z\\. -]+) \\. ([a-z\\. ]{2,6})([\\/\\w ~=\\?\\.-]*)*( \\/)? ";//URLs
+  scpd_expr += L"|((https? : \\/ \\/ )|(www))([\\da-z\\. -]+) \\. ([a-z\\. ]{2,6})([\\/\\w ~=\\?\\.-])*( \\/)? ";//URLs
   scpd_expr += L")";
   if (debug){wcerr << L"Strong compound regex:" << endl << scpd_expr << endl << endl;}
   scpd_regex = boost::wregex(scpd_expr,boost::regex::optimize);
