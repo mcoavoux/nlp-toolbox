@@ -85,9 +85,15 @@ int main(int argc, char* argv[]){
    tok.compile();
 
    for (int i = optind; i < argc; i++){
-       std:string output(argv[i]);
-       output += ".tok";
-       tok.batch_tokenize_file(argv[i], output.c_str(), column,sent_boundary,parag_boundary);
+       try{
+           //cerr << "Tokenizing " << argv[i] << endl;
+           std:string output(argv[i]);
+           output += ".tok";
+           tok.batch_tokenize_file(argv[i], output.c_str(), column,sent_boundary,parag_boundary);
+           //cerr << "Done " << argv[i] << endl;
+       }catch (const std::exception& e) {
+           cerr << "Tokenizing '" << argv[i] << "' I encountered the following error:" << e.what() << endl;
+       }
    }
   }else{
    cerr << "missing input or output files. aborting."<< endl;
