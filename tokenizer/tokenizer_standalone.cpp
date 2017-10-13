@@ -46,7 +46,7 @@ int main(int argc, char* argv[]){
   };
 
   int c = 0;
-  while((c = getopt_long(argc, argv, "csdS:W:P:",longopts,NULL)) != -1){
+  while((c = getopt_long(argc, argv, "csdS:W:P:p",longopts,NULL)) != -1){
     switch(c){
     case 'S':
       strongcpd = string(optarg);
@@ -77,13 +77,18 @@ int main(int argc, char* argv[]){
   }
  }
 
- if (optind+1 < argc){//we have still at least two positional arguments
+ if (optind < argc){//we have still at least two positional arguments
    Tokenizer tok;
    if(!strongcpd.empty()){tok.add_strong_cpd_dictionary(string("strong"),strongcpd.c_str());}
    if(!weakcpd.empty()){tok.add_weak_cpd_dictionary(string("cpd"),weakcpd.c_str());}
    if(!prefixcpd.empty()){tok.add_prefix_dictionary(string("prefixes-hyphen"),prefixcpd.c_str());}
    tok.compile();
-   tok.batch_tokenize_file(argv[optind],argv[optind+1],column,sent_boundary,parag_boundary);
+
+   for (int i = optind; i < argc; i++){
+       std:string output(argv[i]);
+       output += ".tok";
+       tok.batch_tokenize_file(argv[i], output.c_str(), column,sent_boundary,parag_boundary);
+   }
   }else{
    cerr << "missing input or output files. aborting."<< endl;
    display_help_msg();

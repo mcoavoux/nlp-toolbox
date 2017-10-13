@@ -1,6 +1,6 @@
 CXX = clang++
 CFLAGS = -std=c++11 -I /opt/local/include -I ../shared
-LDFLAGS = -L /opt/local/lib -lboost_regex-mt
+LDFLAGS = -L /opt/local/lib -lboost_regex
 OLVL = -O3 
 
 
